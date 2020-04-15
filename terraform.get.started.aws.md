@@ -749,92 +749,93 @@ one.
 After changing the configuration, run `terraform apply` again to see how
 Terraform will apply this change to the existing resources.
 
-```
+```bash
 $ terraform apply
-aws_instance.example: Refreshing state... [id=i-0bbf06244e44211d1]
-
-An execution plan has been generated and is shown below.
-Resource actions are indicated with the following symbols:
--/+ destroy and then create replacement
-
-Terraform will perform the following actions:
-
-# aws_instance.example must be replaced
--/+ resource "aws_instance" "example" {
-  ~ ami                          = "ami-2757f631" -> "ami-b374d5a5" # forces replacement
-  ~ arn                          = "arn:aws:ec2:us-east-1:130490850807:instance/i-0bbf06244e44211d1" -> (known after apply)
-  ~ associate_public_ip_address  = true -> (known after apply)
-  ~ availability_zone            = "us-east-1c" -> (known after apply)
-  ~ cpu_core_count               = 1 -> (known after apply)
-  ~ cpu_threads_per_core         = 1 -> (known after apply)
-  - disable_api_termination      = false -> null
-  - ebs_optimized                = false -> null
-    get_password_data            = false
-  + host_id                      = (known after apply)
-  ~ id                           = "i-0bbf06244e44211d1" -> (known after apply)
-  ~ instance_state               = "running" -> (known after apply)
-    instance_type                = "t2.micro"
-  ~ ipv6_address_count           = 0 -> (known after apply)
-  ~ ipv6_addresses               = [] -> (known after apply)
-  + key_name                     = (known after apply)
-  - monitoring                   = false -> null
-  + network_interface_id         = (known after apply)
-  + password_data                = (known after apply)
-  + placement_group              = (known after apply)
-  ~ primary_network_interface_id = "eni-0f1ce5bdae258b015" -> (known after apply)
-  ~ private_dns                  = "ip-172-31-61-141.ec2.internal" -> (known after apply)
-  ~ private_ip                   = "172.31.61.141" -> (known after apply)
-  ~ public_dns                   = "ec2-54-166-19-244.compute-1.amazonaws.com" -> (known after apply)
-  ~ public_ip                    = "54.166.19.244" -> (known after apply)
-  ~ security_groups              = [
-      - "default",
-    ] -> (known after apply)
-    source_dest_check            = true
-  ~ subnet_id                    = "subnet-1facdf35" -> (known after apply)
-  ~ tenancy                      = "default" -> (known after apply)
-  ~ volume_tags                  = {} -> (known after apply)
-  ~ vpc_security_group_ids       = [
-      - "sg-5255f429",
-    ] -> (known after apply)
-
-  - credit_specification {
-      - cpu_credits = "standard" -> null
-    }
-
-  + ebs_block_device {
-      + delete_on_termination = (known after apply)
-      + device_name           = (known after apply)
-      + encrypted             = (known after apply)
-      + iops                  = (known after apply)
-      + snapshot_id           = (known after apply)
-      + volume_id             = (known after apply)
-      + volume_size           = (known after apply)
-      + volume_type           = (known after apply)
-    }
-
-  + ephemeral_block_device {
-      + device_name  = (known after apply)
-      + no_device    = (known after apply)
-      + virtual_name = (known after apply)
-    }
-
-  + network_interface {
-      + delete_on_termination = (known after apply)
-      + device_index          = (known after apply)
-      + network_interface_id  = (known after apply)
-    }
-
-  ~ root_block_device {
-      ~ delete_on_termination = true -> (known after apply)
-      ~ iops                  = 100 -> (known after apply)
-      ~ volume_id             = "vol-0079e485d9e28a8e5" -> (known after apply)
-      ~ volume_size           = 8 -> (known after apply)
-      ~ volume_type           = "gp2" -> (known after apply)
-    }
-}
-
-Plan: 1 to add, 0 to change, 1 to destroy.
 ```
+
+    aws_instance.example: Refreshing state... [id=i-0bbf06244e44211d1]
+
+    An execution plan has been generated and is shown below.
+    Resource actions are indicated with the following symbols:
+    -/+ destroy and then create replacement
+
+    Terraform will perform the following actions:
+
+     # aws_instance.example must be replaced
+    -/+ resource "aws_instance" "example" {
+      ~ ami                          = "ami-2757f631" -> "ami-b374d5a5" # forces replacement
+      ~ arn                          = "arn:aws:ec2:us-east-1:130490850807:instance/i-0bbf06244e44211d1" -> (known after apply)
+      ~ associate_public_ip_address  = true -> (known after apply)
+      ~ availability_zone            = "us-east-1c" -> (known after apply)
+      ~ cpu_core_count               = 1 -> (known after apply)
+      ~ cpu_threads_per_core         = 1 -> (known after apply)
+      - disable_api_termination      = false -> null
+      - ebs_optimized                = false -> null
+        get_password_data            = false
+      + host_id                      = (known after apply)
+      ~ id                           = "i-0bbf06244e44211d1" -> (known after apply)
+      ~ instance_state               = "running" -> (known after apply)
+        instance_type                = "t2.micro"
+      ~ ipv6_address_count           = 0 -> (known after apply)
+      ~ ipv6_addresses               = [] -> (known after apply)
+      + key_name                     = (known after apply)
+      - monitoring                   = false -> null
+      + network_interface_id         = (known after apply)
+      + password_data                = (known after apply)
+      + placement_group              = (known after apply)
+      ~ primary_network_interface_id = "eni-0f1ce5bdae258b015" -> (known after apply)
+      ~ private_dns                  = "ip-172-31-61-141.ec2.internal" -> (known after apply)
+      ~ private_ip                   = "172.31.61.141" -> (known after apply)
+      ~ public_dns                   = "ec2-54-166-19-244.compute-1.amazonaws.com" -> (known after apply)
+      ~ public_ip                    = "54.166.19.244" -> (known after apply)
+      ~ security_groups              = [
+          - "default",
+        ] -> (known after apply)
+        source_dest_check            = true
+      ~ subnet_id                    = "subnet-1facdf35" -> (known after apply)
+      ~ tenancy                      = "default" -> (known after apply)
+      ~ volume_tags                  = {} -> (known after apply)
+      ~ vpc_security_group_ids       = [
+          - "sg-5255f429",
+        ] -> (known after apply)
+
+      - credit_specification {
+          - cpu_credits = "standard" -> null
+        }
+
+      + ebs_block_device {
+          + delete_on_termination = (known after apply)
+          + device_name           = (known after apply)
+          + encrypted             = (known after apply)
+          + iops                  = (known after apply)
+          + snapshot_id           = (known after apply)
+          + volume_id             = (known after apply)
+          + volume_size           = (known after apply)
+          + volume_type           = (known after apply)
+        }
+
+      + ephemeral_block_device {
+          + device_name  = (known after apply)
+          + no_device    = (known after apply)
+          + virtual_name = (known after apply)
+        }
+
+      + network_interface {
+          + delete_on_termination = (known after apply)
+          + device_index          = (known after apply)
+          + network_interface_id  = (known after apply)
+        }
+
+      ~ root_block_device {
+          ~ delete_on_termination = true -> (known after apply)
+          ~ iops                  = 100 -> (known after apply)
+          ~ volume_id             = "vol-0079e485d9e28a8e5" -> (known after apply)
+          ~ volume_size           = 8 -> (known after apply)
+          ~ volume_type           = "gp2" -> (known after apply)
+        }
+    }
+
+    Plan: 1 to add, 0 to change, 1 to destroy.
     
 The prefix `-/+` means that Terraform will destroy and recreate the resource,
 rather than updating it in-place. While some attributes can be updated in-place
