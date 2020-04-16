@@ -749,9 +749,7 @@ one.
 After changing the configuration, run `terraform apply` again to see how
 Terraform will apply this change to the existing resources.
 
-```bash
-$ terraform apply
-```
+    $ terraform apply
 
     aws_instance.example: Refreshing state... [id=i-0bbf06244e44211d1]
 
