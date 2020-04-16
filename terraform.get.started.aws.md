@@ -34,7 +34,7 @@ https://learn.hashicorp.com/terraform/getting-started/install
 
 Install docker
 
-:ship:
+:ship: install docker using snap
 ```bash
 sudo snap install docker
 
@@ -51,9 +51,7 @@ sudo snap enable docker<Paste>
 docker ps
 ```
 
-Paste the following into a file named [main.tf](terraform-docker-demo/main.tf).
-
-:ship:
+:ship: Paste the following into a file named [main.tf](terraform-docker-demo/main.tf)
 ```terraform
 resource "docker_image" "nginx" {
   name = "nginx:latest"
@@ -69,7 +67,7 @@ resource "docker_container" "nginx" {
 }
 ```
 
-:ship:
+:ship: build the container
 ```bash
 terraform init
 
@@ -78,16 +76,19 @@ terraform apply
 
 [verify nginx is running](http://localhost) or `docker ps`
 
-:ship: 
+:ship: destroy the nginx container 
 ```bash
 terraform destroy
 ```
 
 ### Getting Help
 
-		terraform -help
+:ship: help commands
+```bash
+terraform -help
 
-		terraform --help <command>
+terraform --help <command>
+```
 
 ## Build Infrastructure 
 
