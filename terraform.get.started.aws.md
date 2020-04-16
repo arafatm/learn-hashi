@@ -78,7 +78,8 @@ terraform apply
 
 [verify nginx is running](http://localhost) or `docker ps`
 
-:ship: ```bash
+:ship: 
+```bash
 terraform destroy
 ```
 
