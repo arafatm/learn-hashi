@@ -24,28 +24,16 @@ https://learn.hashicorp.com/terraform
 
 ## Installing Terraform
 
+https://learn.hashicorp.com/terraform/getting-started/install
+
 [Download & install](https://www.terraform.io/downloads.html)
 
-### Verify the installation
+### Quick start tutorial: Provision Nginx with docker
 
-Verify that the installation worked by opening a new terminal session and
-running the terraform command.
-
-```bash
-terraform
-```
-
-    Usage: terraform [--version] [--help] <command> [args]
-    # ...
-
-### Quick start tutorial
-
-> Provision Nginx with docker
-
-:ship:
     mkdir terraform-docker-demo && cd $_
 
 Paste the following into a file named `main.tf`.
+
 ```terraform
 resource "docker_image" "nginx" {
   name = "nginx:latest"
@@ -61,14 +49,12 @@ resource "docker_container" "nginx" {
 }
 ```
 
-:ship:
-
     terraform init
 
     terraform apply
 
-Verify the existence of the Nginx container by visiting localhost in your web
-browser or running docker ps to see the Nginx container.
+Verify the existence of the Nginx container by visiting `localhost` in your web
+browser or running `docker ps` to see the Nginx container.
 
 ![Nginx running in Docker via
 Terraform](https://learn.hashicorp.com/img/terraform/getting-started/terraform-docker-nginx.png)
@@ -191,8 +177,6 @@ Options:
                       a file. If "terraform.tfvars" or any ".auto.tfvars"
                       files are present, they will be automatically loaded.
 ```
-
-xxx
 
 ## Build Infrastructure 
 
