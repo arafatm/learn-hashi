@@ -78,130 +78,19 @@ terraform apply
 
 [verify nginx is running](http://localhost) or `docker ps`
 
-
-![Nginx running in Docker via
-Terraform](https://learn.hashicorp.com/img/terraform/getting-started/terraform-docker-nginx.png)
-
+:ship: ```bash
+terraform destroy
 ```
-$ docker ps
-
-CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS                NAMES
-1acc851196f9        ed21b7a8aee9        "nginx -g 'daemon of…"   30 seconds ago      Up 28 seconds       0.0.0.0:80->80/tcp   tutorial
-```
-
-To stop the container, run `terraform destroy`
-
-```
-$ terraform destroy
-```
-
-That's it! You've provisioned and destroyed an Nginx webserver with Terraform.
-
-For a more detailed example on cloud resources, see the next guide in this
-track.
 
 ### Getting Help
 
-The Terraform CLI has a built-help function. If at any point during this guide
-you are unsure of how to proceed, consider using the -help flag with any
-command. For example:
+		terraform -help
 
-```
-$ terraform -help
-Usage: terraform [-version] [-help] <command> [args]
-
-The available commands for execution are listed below.
-The most common, useful commands are shown first, followed by
-less common or more advanced commands. If you are just getting
-started with Terraform, stick with the common commands. For the
-other commands, please read the help and docs before usage.
-
-Common commands:
-    apply              Builds or changes infrastructure
-    console            Interactive console for Terraform interpolations
-    destroy            Destroy Terraform-managed infrastructure
-    env                Workspace management
-    fmt                Rewrites config files to canonical format
-    get                Download and install modules for the configuration
-    graph              Create a visual graph of Terraform resources
-    import             Import existing infrastructure into Terraform
-    init               Initialize a Terraform working directory
-    output             Read an output from a state file
-    plan               Generate and show an execution plan
-    providers          Prints a tree of the providers used in the configuration
-    refresh            Update local state file against real resources
-    show               Inspect Terraform state or plan
-    taint              Manually mark a resource for recreation
-    untaint            Manually unmark a resource as tainted
-    validate           Validates the Terraform files
-    version            Prints the Terraform version
-    workspace          Workspace management
-
-All other commands:
-    0.12upgrade        Rewrites pre-0.12 module source code for v0.12
-    debug              Debug output management (experimental)
-    force-unlock       Manually unlock the terraform state
-    push               Obsolete command for Terraform Enterprise legacy (v1)
-    state              Advanced state management
-```
-
-Any of these commands can be added to the --help flag to get more information. For example:
-
-```
-$ terraform --help plan
-
-Usage: terraform plan [options] [DIR]
-
-  Generates an execution plan for Terraform.
-
-  This execution plan can be reviewed prior to running apply to get a
-  sense for what Terraform will do. Optionally, the plan can be saved to
-  a Terraform plan file, and apply can take this plan file to execute
-  this plan exactly.
-
-Options:
-
-  -destroy            If set, a plan will be generated to destroy all resources
-                      managed by the given configuration and state.
-
-  -detailed-exitcode  Return detailed exit codes when the command exits. This
-                      will change the meaning of exit codes to:
-                      0 - Succeeded, diff is empty (no changes)
-                      1 - Errored
-                      2 - Succeeded, there is a diff
-
-  -input=true         Ask for input for variables if not directly set.
-
-  -lock=true          Lock the state file when locking is supported.
-
-  -lock-timeout=0s    Duration to retry a state lock.
-
-  -no-color           If specified, output will not contain any color.
-
-  -out=path           Write a plan file to the given path. This can be used as
-                      input to the "apply" command.
-
-  -parallelism=n      Limit the number of concurrent operations. Defaults to 10.
-
-  -refresh=true       Update state prior to checking for differences.
-
-  -state=statefile    Path to a Terraform state file to use to look
-                      up Terraform-managed resources. By default it will
-                      use the state "terraform.tfstate" if it exists.
-
-  -target=resource    Resource to target. Operation will be limited to this
-                      resource and its dependencies. This flag can be used
-                      multiple times.
-
-  -var "foo=bar"      Set a variable in the Terraform configuration. This
-                      flag can be set multiple times.
-
-  -var-file=foo       Set variables in the Terraform configuration from
-                      a file. If "terraform.tfvars" or any ".auto.tfvars"
-                      files are present, they will be automatically loaded.
-```
+		terraform --help <command>
 
 ## Build Infrastructure 
+
+xxx
 
 > Start creating some infrastructure.
 
@@ -925,6 +814,7 @@ proceeding. Answer `yes` to execute the planned steps:
     Apply complete! Resources: 1 added, 0 changed, 1 destroyed.
     
 As indicated by the execution plan, Terraform first destroyed the existing instance and then created a new one in its place. You can use `terraform show` again to see the new values associated with this instance.> How to completely destroy the Terraform-managed infrastructure.
+
 
 ## Destroy Infrastructure | Terraform - HashiCorp Learn
 
