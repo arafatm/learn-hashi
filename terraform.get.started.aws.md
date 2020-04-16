@@ -32,8 +32,28 @@ https://learn.hashicorp.com/terraform/getting-started/install
 
     mkdir terraform-docker-demo && cd $_
 
-Paste the following into a file named `main.tf`.
+Install docker
 
+:ship:
+```bash
+sudo snap install docker
+
+ # Create and join the docker group.
+sudo addgroup --system docker
+sudo adduser $USER docker
+newgrp docker
+
+ # restart docker
+sudo snap disable docker
+sudo snap enable docker<Paste>
+
+ # test docker
+docker ps
+```
+
+Paste the following into a file named [main.tf](terraform-docker-demo/main.tf).
+
+:ship:
 ```terraform
 resource "docker_image" "nginx" {
   name = "nginx:latest"
@@ -49,12 +69,15 @@ resource "docker_container" "nginx" {
 }
 ```
 
-    terraform init
+:ship:
+```bash
+terraform init
 
-    terraform apply
+terraform apply
+```
 
-Verify the existence of the Nginx container by visiting `localhost` in your web
-browser or running `docker ps` to see the Nginx container.
+[verify nginx is running](http://localhost) or `docker ps`
+
 
 ![Nginx running in Docker via
 Terraform](https://learn.hashicorp.com/img/terraform/getting-started/terraform-docker-nginx.png)
