@@ -42,12 +42,10 @@ terraform
 
 > Provision Nginx with docker
 
-```bash
+:ship:
     mkdir terraform-docker-demo && cd $_
-```
 
 Paste the following into a file named `main.tf`.
-
 ```terraform
 resource "docker_image" "nginx" {
   name = "nginx:latest"
@@ -63,16 +61,11 @@ resource "docker_container" "nginx" {
 }
 ```
 
-```
-terraform init
-```
+:ship:
 
-Provision the Nginx server with apply. You'll be asked to confirm by typing
-yes and pressing ENTER.
+    terraform init
 
-```
-$ terraform apply
-```
+    terraform apply
 
 Verify the existence of the Nginx container by visiting localhost in your web
 browser or running docker ps to see the Nginx container.
