@@ -2,153 +2,53 @@ https://learn.hashicorp.com/terraform
 
 ## Introduction to Infrastructure as Code with Terraform
 
-5 MIN | What is Infrastructure as Code and Why is Terraform Useful?
-
-Terraform is the infrastructure as code offering from HashiCorp. It is a tool
-for building, changing, and managing infrastructure in a safe, repeatable way.
-Operators and Infrastructure teams can use Terraform to manage environments
-with a configuration language called the HashiCorp Configuration Language
-(HCL) for human-readable, automated deployments.
+> building, changing, and managing infrastructure in a safe, repeatable way.
 
 ### Infrastructure as Code
 
-If you are new to infrastructure as code as a concept, it is the process of
-managing infrastructure in a file or files rather than manually configuring
-resources in a user interface. A resource in this instance is any piece of
-infrastructure in a given environment, such as a virtual machine, security
-group, network interface, etc.
-
-At a high level, Terraform allows operators to use HCL to author files
-containing definitions of their desired resources on almost any provider (AWS,
-GCP, GitHub, Docker, etc) and automates the creation of those resources at the
-time of apply.
-
-In this track, we will cover the basic functions of Terraform to create
-infrastructure on AWS.
+> the process of managing infrastructure in a file or files rather than
+> manually configuring resources in a user interface. 
 
 ### Workflows
 
-A simple workflow for deployment will follow closely to the steps below. We
-will go over each of these steps and concepts more in-depth throughout this
-track, so don't panic if you don't understand the concepts immediately.
-
-- **Scope** - Confirm what resources need to be created for a given project.
-- **Author** - Create the configuration file in HCL based on the scoped
-  parameters
-- **Initialize** - Run terraform init in the project directory with the
-  configuration files. This will download the correct provider plug-ins for
-  the project.
-- **Plan & Apply** - Run terraform plan to verify creation process and then
-  terraform apply to create real resources as well as state file that compares
-  future changes in your configuration files to what actually exists in your
-  deployment environment.
+- **Scope** 
+- **Author** 
+- **Initialize** 
+- **Plan & Apply** 
 
 ### Advantages of Terraform
-
-While many of the current offerings for infrastructure as code may work in
-your environment, Terraform aims to have a few advantages for operators and
-organizations of any size.
 
 - Platform Agnostic
 - State Management
 - Operator Confidence
 
-### Platform Agnostic
-
-In a modern datacenter, you may have several different clouds and platforms to
-support your various applications. With Terraform, you can manage a
-heterogenous environment with the same workflow by creating a configuration
-file to fit the needs of your project or organization.
-
-### State Management
-
-Terraform creates a state file when a project is first initialized. Terraform
-uses this local state to create plans and make changes to your infrastructure.
-Prior to any operation, Terraform does a refresh to update the state with the
-real infrastructure. This means that Terraform state is the source of truth by
-which configuration changes are measured. If a change is made or a resource is
-appended to a configuration, Terraform compares those changes with the state
-file to determine what changes result in a new resource or resource
-modifications.
-
-### Operator Confidence
-
-The workflow built into Terraform aims to instill confidence in users by
-promoting easily repeatable operations and a planning phase to allow users to
-ensure the actions taken by Terraform will not cause disruption in their
-environment. Upon terraform apply, the user will be prompted to review the
-proposed changes and must affirm the changes or else Terraform will not apply
-the proposed plan.
-
 ## Installing Terraform
 
-7 MIN | How to install Terraform and verify installation.
-
-Terraform must first be installed on your machine. Terraform is distributed as
-a binary package for all supported platforms and architectures. This page will
-not cover how to compile Terraform from source, but compiling from source is
-covered in the documentation for those who want to be sure they're compiling
-source they trust into the final binary.
-
-### Installing Terraform
-
-To install Terraform, find the appropriate package for your system and
-download it. Terraform is packaged as a zip archive.
-
-After downloading Terraform, unzip the package. Terraform runs as a single
-binary named terraform. Any other files in the package can be safely removed
-and Terraform will still function.
-
-The final step is to make sure that the terraform binary is available on the
-PATH. See this page for instructions on setting the PATH on Linux and Mac.
-This page contains instructions for setting the PATH on Windows.
+[Download & install](https://www.terraform.io/downloads.html)
 
 ### Verify the installation
 
 Verify that the installation worked by opening a new terminal session and
 running the terraform command.
 
+```bash
+terraform
 ```
-$ terraform
-Usage: terraform [--version] [--help] <command> [args]
 
-The available commands for execution are listed below.
-The most common, useful commands are shown first, followed by
-less common or more advanced commands. If you are just getting
-started with Terraform, stick with the common commands. For the
-other commands, please read the help and docs before usage.
-
-Common commands:
-    apply              Builds or changes infrastructure
-    console            Interactive console for Terraform interpolations
+    Usage: terraform [--version] [--help] <command> [args]
     # ...
-```
-
-If you get an error that terraform could not be found, your PATH environment
-variable was not set up properly. Please go back and ensure that your PATH
-variable contains the directory where Terraform was installed.
 
 ### Quick start tutorial
 
-Now that you've installed Terraform, you can provision an Nginx server in less
-than a minute using Docker on Mac, Windows, or Linux. The next guide in this
-track goes into more details and provisions live cloud resources but this
-example can be run locally for free in barely any time at all.
+> Provision Nginx with docker
 
-We've created an interactive environment where you can run this Terraform
-configuration in your web browser. Launch it here.
-
-[Show Tutorial]()
-
-Or on your local machine, create a directory named terraform-docker-demo.
-
-```
-$ mkdir terraform-docker-demo && cd $_
+```bash
+    mkdir terraform-docker-demo && cd $_
 ```
 
-Paste the following into a file named main.tf.
+Paste the following into a file named `main.tf`.
 
-```
+```terraform
 resource "docker_image" "nginx" {
   name = "nginx:latest"
 }
@@ -163,10 +63,8 @@ resource "docker_container" "nginx" {
 }
 ```
 
-Initialize the project with the `init` command.
-
 ```
-$ terraform init
+terraform init
 ```
 
 Provision the Nginx server with apply. You'll be asked to confirm by typing
@@ -300,6 +198,8 @@ Options:
                       a file. If "terraform.tfvars" or any ".auto.tfvars"
                       files are present, they will be automatically loaded.
 ```
+
+xxx
 
 ## Build Infrastructure 
 
@@ -1787,7 +1687,7 @@ using `terraform output`:
 This command is useful for scripts to extract outputs.> Refactor your existing
 configuration into a module for reusability.
 
-# Modules | Terraform - HashiCorp Learn
+## Modules | Terraform - HashiCorp Learn
 
 This guide is not currently updated for Terraform 0.12. For more information
 about updating or writing modules, see the [configuration language
