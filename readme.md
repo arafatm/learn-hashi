@@ -4,7 +4,7 @@ https://learn.hashicorp.com/terraform
 
 - [x] [01.introduction.to.infrastructure.as.code.md](learn.terraform/01.introduction.to.infrastructure.as.code.md)
 - [x] [02.get.started.aws.md](learn.terraform/02.get.started.aws.md)
-- [ ] [03.build.infrastructure.md](learn.terraform/03.build.infrastructure.md)
+- [x] [03.build.infrastructure.md](learn.terraform/03.build.infrastructure.md)
 - [ ] [04.destroy.infrastructure.md](learn.terraform/04.destroy.infrastructure.md)
 - [ ] [05.resource.dependencies.md](learn.terraform/05.resource.dependencies.md)
 - [ ] [06.provision.md](learn.terraform/06.provision.md)
