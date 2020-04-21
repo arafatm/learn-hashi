@@ -10,7 +10,7 @@ https://console.aws.amazon.com/console/home
 - [x] [04-destroy-infrastructure.md](learn-terraform/04-destroy-infrastructure.md)
 - [x] [05-resource-dependencies.md](learn-terraform/05-resource-dependencies.md)
 - [x] [06-provision.md](learn-terraform/06-provision.md)
-- [ ] [07-input-variables.md](learn-terraform/07-input-variables.md)
+- [x] [07-input-variables.md](learn-terraform/07-input-variables.md)
 - [ ] [08-output-variables.md](learn-terraform/08-output-variables.md)
 - [ ] [09-modules.md](learn-terraform/09-modules.md)
 - [ ] [10-remote-state-storage.md](learn-terraform/10-remote-state-storage.md)
