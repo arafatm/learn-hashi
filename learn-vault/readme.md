@@ -16,7 +16,7 @@ https://www.vaultproject.io/downloads.html
 ```bash
 vault
 ```
-    
+
 ### Command Completion
 
 :ship: To install completions, run:
@@ -38,9 +38,9 @@ vault server -dev
 ```
 
 Look for the following lines:
-    
+
     $ export VAULT_ADDR='http://127.0.0.1:8200'
-    
+
     Unseal Key: 1+yv+v5mz+aSCK67X6slL3ECxb4UDL8ujWZU/ONBpn0=
     Root Token: s.XmpNPoi9sRhYtdKHaQhkHP6x
 
@@ -60,115 +60,57 @@ anything else:
 vault status
 ```
 
-xxx
-
 ## Your First Secret
 
-Now that the dev server is up and running, let's get straight to it and read and write our first secret.
+https://learn.hashicorp.com/vault/getting-started/first-secret
 
-One of the core features of Vault is the ability to read and write arbitrary secrets securely. On this page, we'll do this using the CLI, but there is also a complete [HTTP API](https://www.vaultproject.io/api/index.html) that can be used to programmatically do anything with Vault.
+Using CLI here, but also can 
+[HTTP API](https://www.vaultproject.io/api/index.html)
 
-Secrets written to Vault are encrypted and then written to backend storage. For our dev server, backend storage is in-memory, but in production this would more likely be on disk or in [Consul](https://www.consul.io/). Vault encrypts the value before it is ever handed to the storage driver. The backend storage mechanism _never_ sees the unencrypted value and doesn't have the means necessary to decrypt it without Vault.
-
-**NOTE:** An interactive tutorial is also available to perform the steps described in this guide. Click the **Show Tutorial** button to launch the tutorial.
+Using **inmem** backend in `-dev` but can use [Consul](https://www.consul.io/)
 
 ### Writing a Secret
 
-Let's start by writing a secret. This is done very simply with the `vault kv` command, as shown below:
-
-:ship:
+:ship: write a secret
 ```bash
 vault kv put secret/hello foo=world
 ```
-    
-    Key              Value
-    ---              -----
-    created_time     2019-02-04T19:53:22.730733Z
-    deletion_time    n/a
-    destroyed        false
-    version          1
 
-This writes the pair `foo=world` to the path `secret/hello`. We'll cover paths in more detail later, but for now it is important that the path is prefixed with `secret/`, otherwise this example won't work. The `secret/` prefix is where arbitrary secrets can be read and written.
-
-You can even write multiple pieces of data, if you want:
-
-:ship:
+:ship: You can even write multiple pieces of data, if you want:
 ```bash
 vault kv put secret/hello foo=world excited=yes
 ```
-    
-    Key              Value
-    ---              -----
-    created_time     2019-02-04T19:54:03.250328Z
-    deletion_time    n/a
-    destroyed        false
-    version          2
 
-`vault kv put` is a very powerful command. In addition to writing data directly from the command-line, it can read values and key pairs from `STDIN` as well as files. For more information, see the [command documentation](https://www.vaultproject.io/docs/commands/index.html).
+[command documentation](https://www.vaultproject.io/docs/commands/index.html)
 
-:warning: The documentation uses the `key=value` based entry throughout, but it is more secure to use files if possible. Sending data via the CLI is often logged in shell history. For real secrets, please use files. See the link above about reading in from `STDIN` for more information.
+:warning: The documentation uses the `key=value` based entry throughout, but it
+is more secure to use files if possible. Sending data via the CLI is often
+logged in shell history. For real secrets, please use files. See the link above
+about reading in from `STDIN`.
 
 ### Getting a Secret
 
-As you might expect, secrets can be gotten with `vault get`:
-
-:ship:
+:ship: read secret
 ```bash
 vault kv get secret/hello
 ```
-    
-    ====== Metadata ======
-    Key              Value
-    ---              -----
-    created_time     2019-02-04T19:54:03.250328Z
-    deletion_time    n/a
-    destroyed        false
-    version          2
-    
-    ===== Data =====
-    Key        Value
-    ---        -----
-    excited    yes
-    foo        world
 
-As you can see, the values we wrote are given back to us. Vault gets the data from storage and decrypts it.
-
-The output format is purposefully whitespace separated to make it easy to pipe into a tool like `awk`.
-
-This contains some extra information. Many secrets engines create leases for secrets that allow time-limited access to other systems, and in those cases `lease_id` would contain a lease identifier and `lease_duration` would contain the length of time for which the lease is valid, in seconds.
-
-To print only the value of a given field:
-
-:ship:
+:ship: To print only the value of a given field: 
 ```bash
 vault kv get -field=excited secret/hello
 ```
-    
-    yes
 
-Optional JSON output is very useful for scripts. For example below we use the `jq` tool to extract the value of the `excited` secret:
-
-:ship:
+:ship: Optional json output
 ```bash
 vault kv get -format=json secret/hello | jq -r .data.data.excited
 ```
-    
-    yes
 
 ### Deleting a Secret
 
-Now that we've learned how to read and write a secret, let's go ahead and delete it. We can do this with `vault delete`:
-
-:ship:
+:ship: delete a secret
 ```bash
 vault kv delete secret/hello
 ```
-    
-    Success! Data deleted (if it existed) at: secret/hello
-
-### Next
-
-In this section we learned how to use the powerful CRUD features of Vault to store arbitrary secrets. On its own this is already a useful but basic feature.> Secrets engines create, read, update, and delete secrets.
 
 ## Secrets Engines | Vault - HashiCorp Learn
 
@@ -178,19 +120,23 @@ Previously, we saw how to read and write arbitrary secrets to Vault. You may hav
 ```bash
 vault kv put foo/bar a=b
 ```
-    
+
     Error making API request.
-    
+
     URL: GET http://localhost:8200/v1/sys/internal/ui/mounts/foo/bar
     Code: 403. Errors:
-    
+
     * preflight capability check returned 403, ... grant access to path "foo/bar/"
 
 The path prefix tells Vault which secrets engine to which it should route traffic. When a request comes to Vault, it matches the initial path part using a longest prefix match and then passes the request to the corresponding secrets engine enabled at that path. Vault presents these secrets engines similar to a filesystem.
 
-By default, Vault enables [Key/Value version2 secrets engine](https://www.vaultproject.io/docs/secrets/kv/kv-v2/) (`kv-v2`) at the path `secret/` when running in `dev` mode. The key/value secrets engine reads and writes raw data to the backend storage. Vault supports many other secrets engines, and this feature makes Vault flexible and unique.
+By default, Vault enables 
 
-**NOTE:** The key/value secrets engine has two versions: `kv` (version 1) and `kv-v2` (version 2). The `kv-v2` is versioned `kv` secrets engine which can retain a number of secrets versions.
+[Key/Value version2 secrets engine](https://www.vaultproject.io/docs/secrets/kv/kv-v2/) (`kv-v2`)
+
+ at the path `secret/` when running in `dev` mode. The key/value secrets engine reads and writes raw data to the backend storage. Vault supports many other secrets engines, and this feature makes Vault flexible and unique.
+
+:exclamation: The key/value secrets engine has two versions: `kv` (version 1) and `kv-v2` (version 2). The `kv-v2` is versioned `kv` secrets engine which can retain a number of secrets versions.
 
 This page discusses secrets engines and the operations they support. This information is important to both operators who will configure Vault and users who will interact with Vault.
 
@@ -202,7 +148,7 @@ To get started, enable the `kv` secrets engine. Each path is completely isolated
 ```bash
 vault secrets enable -path=kv kv
 ```
-    
+
     Success! Enabled the kv secrets engine at: kv/
 
 The path where the secrets engine is enabled defaults to the name of the secrets engine. Thus, the following command is equivalent to executing the above command.
@@ -220,7 +166,7 @@ To verify our success and get more information about the secrets engine, use the
 ```bash
 vault secrets list
 ```
-    
+
     Path          Type         Accessor              Description
     ----          ----         --------              -----------
     cubbyhole/    cubbyhole    cubbyhole_78189996    per-token private secret storage
@@ -249,7 +195,7 @@ To read the secrets stored in the `kv/hello` path, use the `kv get` command.
 ```bash
 vault kv get kv/hello
 ```
-    
+
     ===== Data =====
     Key       Value
     ---       -----
@@ -269,7 +215,7 @@ Read the secrets at `kv/my-secret`.
 ```bash
 vault kv get kv/my-secret
 ```
-    
+
     ==== Data ====
     Key      Value
     ---      -----
@@ -289,7 +235,7 @@ List existing keys at the `kv` path.
 ```bash
 vault kv list kv/
 ```
-    
+
     Keys
     ----
     hello
@@ -302,7 +248,7 @@ When a secrets engine is no longer needed, it can be disabled. When a secrets en
 ```bash
 vault secrets disable kv/
 ```
-    
+
     Success! Disabled the secrets engine (if it existed) at: kv/
 
 Note that this command takes a PATH to the secrets engine as an argument, not the TYPE of the secrets engine.
@@ -313,7 +259,11 @@ Any requests to route data to the original path would result in an error, but an
 
 Now that you've successfully enabled and disabled a secrets engine... what is it? What is the point of a secrets engine?
 
-As mentioned above, Vault behaves similarly to a [virtual filesystem](https://en.wikipedia.org/wiki/Virtual_file_system). The read/write/delete/list operations are forwarded to the corresponding secrets engine, and the secrets engine decides how to react to those operations.
+As mentioned above, Vault behaves similarly to a 
+
+[virtual filesystem](https://en.wikipedia.org/wiki/Virtual_file_system)
+
+. The read/write/delete/list operations are forwarded to the corresponding secrets engine, and the secrets engine decides how to react to those operations.
 
 This abstraction is incredibly powerful. It enables Vault to interface directly with physical systems, databases, HSMs, etc. But in addition to these physical systems, Vault can interact with more unique environments like AWS IAM, dynamic SQL user creation, etc. all while using the same read/write interface.
 
@@ -327,7 +277,11 @@ Now that you've experimented with the `kv` secrets engine, it is time to explore
 
 Unlike the `kv` secrets where you had to put data into the store yourself, dynamic secrets are generated when they are accessed. Dynamic secrets do not exist until they are read, so there is no risk of someone stealing them or another client using the same secrets. Because Vault has built-in revocation mechanisms, dynamic secrets can be revoked immediately after use, minimizing the amount of time the secret existed.
 
-:flashlight: Before starting this page, please register for an [AWS account](https://aws.amazon.com/). We won't be using any features that cost money, so you shouldn't be charged for anything. However, we are not responsible for any charges you may incur.
+:flashlight: Before starting this page, please register for an 
+
+[AWS account](https://aws.amazon.com/)
+
+. We won't be using any features that cost money, so you shouldn't be charged for anything. However, we are not responsible for any charges you may incur.
 
 ### Enable the AWS secrets engine
 
@@ -337,7 +291,7 @@ Unlike the `kv` secrets engine which is enabled by default, the AWS secrets engi
 ```bash
 vault secrets enable -path=aws aws
 ```
-    
+
     Success! Enabled the aws secrets engine at: aws/
 
 The AWS secrets engine is now enabled at `aws/`. As we covered in the previous sections, different secrets engines allow for different behavior. In this case, the AWS secrets engine generates dynamic, on-demand AWS access credentials.
@@ -355,7 +309,7 @@ vault write aws/config/root \
         access_key=AKIAI4SGLQPBX6CSENIQ \
         secret_key=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 \
         region=us-east-1
-    
+
     Success! Data written to: aws/config/root
 
 These credentials are now stored in this AWS secrets engine. The engine will use these credentials when communicating with AWS in future requests.
@@ -378,7 +332,7 @@ For example, here is an IAM policy that enables all actions on EC2, but not IAM 
       ]
     }
 
-**NOTE:** If you are not familiar with AWS' IAM policies, that is okay - just use this one for now.
+:exclamation: If you are not familiar with AWS' IAM policies, that is okay - just use this one for now.
 
 We need to map this policy document to a named role. To do that, write to `aws/roles/:name` where `:name` is your unique name that describes the role (such as `aws/roles/my-role`):
 
@@ -472,33 +426,33 @@ With the secrets engine enabled, learn about it with the `vault path-help` comma
 ```bash
 vault path-help aws
 ```
-    
+
     ### DESCRIPTION
-    
+
     The AWS backend dynamically generates AWS access keys for a set of
     IAM policies. The AWS access keys have a configurable lease set and
     are automatically revoked at the end of the lease.
-    
+
     After mounting this backend, credentials to generate IAM keys must
     be configured with the "root" path and policies must be written using
     the "roles/" endpoints before any access keys can be generated.
-    
+
     ### PATHS
-    
+
     The following paths are supported by this backend. To view help for
     any of the paths below, use the help command with any route matching
     the path pattern. Note that depending on the policy of your auth token,
     you may or may not be able to access certain paths.
-    
+
         ^config/lease$
             Configure the default lease information for generated credentials.
-    
+
         ^config/root$
             Configure the root credentials that are used to manage IAM.
-    
+
         ^creds/(?P<name>\w+)$
             Generate an access key pair for a specific role.
-    
+
         ^roles/(?P<name>\w+)$
             Read and write IAM policies that access keys can be made for.
 
@@ -512,24 +466,24 @@ After seeing the overview, we can continue to dive deeper by getting help for an
 ```bash
 vault path-help aws/creds/my-non-existent-role
 ```
-    
+
     Request:        creds/my-non-existent-role
     Matching Route: ^creds/(?P<name>\w(([\w-.]+)?\w)?)$
-    
+
     Generate an access key pair for a specific role.
-    
+
     ### PARAMETERS
-    
+
         name (string)
             Name of the role
-    
+
     ### DESCRIPTION
-    
+
     This path will generate a new, never before used key pair for
     accessing AWS. The IAM policy used to back this key pair will be
     the "name" parameter. For example, if this backend is mounted at "aws",
     then "aws/creds/deploy" would generate access keys for the "deploy" role.
-    
+
     The access keys will have a lease associated with them. The access keys
     can be revoked by using the lease ID.
 
@@ -545,7 +499,11 @@ The help system may not be the most exciting feature of Vault, but it is indispe
 
 Now that we know how to use the basics of Vault, it is important to understand how to authenticate to Vault itself. Up to this point, we have not logged in to Vault. When starting the Vault server in `dev` mode, it automatically logs you in as the root user with admin permissions. In a non-dev setup, you would have had to authenticate first.
 
-On this page, we'll talk specifically about authentication. On the next page, we talk about [authorization](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/policies). Authentication is the mechanism of assigning an identity to a Vault user. The access control and permissions associated with an identity are authorization, and will not be covered on this page.
+On this page, we'll talk specifically about authentication. On the next page, we talk about 
+
+[authorization](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/policies)
+
+. Authentication is the mechanism of assigning an identity to a Vault user. The access control and permissions associated with an identity are authorization, and will not be covered on this page.
 
 Vault has pluggable auth methods, making it easy to authenticate with Vault using whatever form works best for your organization. On this page we will use the token auth method and the GitHub auth method.
 
@@ -569,7 +527,7 @@ You can create more tokens using the `vault token create` command.
 ```bash
 vault token create
 ```
-    
+
     Key                  Value
     ---                  -----
     token                s.iyNUhq8Ov4hIAx6snw5mB2nL
@@ -588,11 +546,11 @@ To authenticate with a token, execute the `vault login` command.
 ```bash
 vault login s.iyNUhq8Ov4hIAx6snw5mB2nL
 ```
-    
+
     Success! You are now authenticated. The token information displayed below
     is already stored in the token helper. You do NOT need to run "vault login"
     again. Future Vault requests will automatically use this token.
-    
+
     Key                  Value
     ---                  -----
     token                s.iyNUhq8Ov4hIAx6snw5mB2nL
@@ -611,7 +569,7 @@ After a token is created, you can revoke it.
 ```bash
 vault token revoke s.V6T0DxxIg5FbBSre61y1WLgm
 ```
-    
+
     Success! Revoked token (if it existed)
 
 In a previous section, we used the `vault lease revoke` command. This command is only used for revoking _leases_. For revoking _tokens_, use `vault token revoke`.
@@ -623,7 +581,11 @@ Log back in with root token.
 vault login $VAULT_DEV_ROOT_TOKEN_ID
 ```
 
-#### [»](#recommended-patterns)Recommended Patterns
+#### 
+
+[»](#recommended-patterns)
+
+Recommended Patterns
 
 
 In practice, operators should not use the `token create` command to generate Vault tokens for users or machines. Instead, those users or machines should authenticate to Vault using any of Vault's configured auth methods such as GitHub, LDAP, AppRole, etc. For legacy applications which cannot generate their own token, operators may need to create a token in advance. Auth methods are discussed in more detail in the next section.
@@ -638,16 +600,16 @@ First, enable the GitHub auth method.
 ```bash
 vault auth enable -path=github github
 ```
-    
+
     Success! Enabled github auth method at: github/
 
-**NOTE:** Just like secrets engines, auth methods default to their TYPE as the PATH, so the following commands are equivalent.
+:exclamation: Just like secrets engines, auth methods default to their TYPE as the PATH, so the following commands are equivalent.
 
 :ship:
 ```bash
 vault auth enable -path=github github
 ```
-    
+
 :ship:
 ```bash
 vault auth enable github
@@ -659,7 +621,7 @@ Unlike secrets engines which are enabled at the root router, auth methods are al
 ```bash
 vault auth enable -path=my-github github
 ```
-    
+
     Success! Enabled github auth method at: my-github/
 
 This would make the GitHub auth method accessible at `auth/my-github`. You can use `vault path-help` to learn more about the paths.
@@ -672,7 +634,7 @@ With the GitHub auth method enabled, we next tell it which organization users mu
 ```bash
 vault write auth/github/config organization=hashicorp
 ```
-    
+
     Success! Data written to: auth/github/config
 
 The above command configured Vault to pull authentication data from the "hashicorp" organization on GitHub.
@@ -683,12 +645,12 @@ Map policies to a team within the organization.
 ```bash
 vault write auth/github/map/teams/my-team value=default,my-policy
 ```
-    
+
     Success! Data written to: auth/github/map/teams/my-team
 
 This command tells Vault to map any users who are members of the team "my-team" (in the hashicorp organization) to the policies "default" and "my-policy".
 
-**NOTE:** These policies do not have to exist in the system yet - Vault will just produce a warning when you login.
+:exclamation: These policies do not have to exist in the system yet - Vault will just produce a warning when you login.
 
 As a user, you may want to find which auth methods are enabled and available.
 
@@ -696,7 +658,7 @@ As a user, you may want to find which auth methods are enabled and available.
 ```bash
 vault auth list
 ```
-    
+
     Path       Type      Description
     ----       ----      -----------
     github/    github    n/a
@@ -708,25 +670,25 @@ The `vault auth list` command will list all enabled auth methods. To learn more 
 ```bash
 vault auth help github
 ```
-    
+
     Usage: vault login -method=github [CONFIG K=V...]
-    
+
       The GitHub auth method allows users to authenticate using a GitHub
       personal access token. Users can generate a personal access token from the
       settings page on their GitHub account.
-    
+
       Authenticate using a GitHub token:
-    
+
           $ vault login -method=github token=abcd1234
-    
+
     Configuration:
-    
+
       mount=<string>
           Path where the GitHub credential method is mounted. This is usually
           provided via the -path flag in the "vault login" command, but it can be
           specified here as well. If specified here, it takes precedence over the
           value for -path. The default value is "github".
-    
+
       token=<string>
           GitHub personal access token to use for authentication.
 
@@ -753,18 +715,22 @@ Request help information for tokens.
 vault auth help token
 ```
 
-As per the help output, authenticate to GitHub using the `vault login` command. Enter your [GitHub personal access token](https://help.github.com/articles/creating-an-access-token-for-command-line-use/) and Vault will authenticate you.
+As per the help output, authenticate to GitHub using the `vault login` command. Enter your 
+
+[GitHub personal access token](https://help.github.com/articles/creating-an-access-token-for-command-line-use/)
+
+ and Vault will authenticate you.
 
 :ship:
 ```bash
 vault login -method=github
 ```
-    
+
     GitHub Personal Access Token (will be hidden):
     Success! You are now authenticated. The token information displayed below
     is already stored in the token helper. You do NOT need to run "vault login"
     again. Future Vault requests will automatically use this token.
-    
+
     Key                    Value
     ---                    -----
     token                  s.DNtKCjVQ1TxAzgMqtDuwjjC2
@@ -795,7 +761,7 @@ Alternatively, if you want to completely disable the GitHub auth method, execute
 ```bash
 vault auth disable github
 ```
-    
+
     Success! Disabled the auth method (if it existed) at: github/
 
 This will also revoke any logins for that auth method.
@@ -816,14 +782,18 @@ There are some built-in policies that cannot be removed. For example, the `root`
 
 ### Policy Format
 
-Policies are authored in [HCL](https://github.com/hashicorp/hcl), but are JSON compatible. Here is an example policy:
+Policies are authored in 
 
-    
-    
+[HCL](https://github.com/hashicorp/hcl)
+
+, but are JSON compatible. Here is an example policy:
+
+
+
     path "secret/data/*" {
       capabilities = ["create", "update"]
     }
-    
+
     path "secret/data/foo" {
       capabilities = ["read"]
     }
@@ -841,7 +811,7 @@ The policy format uses a prefix matching system on the API path to determine acc
 
 ### Writing the Policy
 
-**NOTE:** An interactive tutorial is also available to perform the steps described in this guide. Click the **Show Tutorial** button to launch the tutorial.
+:exclamation: An interactive tutorial is also available to perform the steps described in this guide. Click the **Show Tutorial** button to launch the tutorial.
 
 To write a policy using the command line, specify the path to a policy file to upload.
 
@@ -861,7 +831,7 @@ vault policy write my-policy -<<EOF
     path "secret/data/*" {
       capabilities = ["create", "update"]
     }
-    
+
     path "secret/data/foo" {
       capabilities = ["read"]
     }
@@ -873,7 +843,7 @@ To see the list of policies, execute the following command.
 ```bash
 vault policy list
 ```
-    
+
     default
     my-policy
     root
@@ -884,13 +854,13 @@ To view the contents of a policy, execute the `vault policy read` command.
 ```bash
 vault policy read my-policy
 ```
-    
+
     # Dev servers have version 2 of KV secrets engine mounted by default, so will
     # need these paths to grant permissions:
     path "secret/data/*" {
       capabilities = ["create", "update"]
     }
-    
+
     path "secret/data/foo" {
       capabilities = ["read"]
     }
@@ -903,7 +873,7 @@ First, check to verify that KV v2 secrets engine has not been enabled at `secret
 ```bash
 vault secrets list
 ```
-    
+
     Path          Type         Accessor              Description
     ----          ----         --------              -----------
     cubbyhole/    cubbyhole    cubbyhole_b81986c7    per-token private secret storage
@@ -923,7 +893,7 @@ To use the policy, create a token and assign it to that policy.
 ```bash
 vault token create -policy=my-policy
 ```
-    
+
     Key                  Value
     ---                  -----
     token                s.X6gvFko7chPilgV0lpWXsdeu
@@ -940,11 +910,11 @@ Copy the generated token value and authenticate with Vault.
 ```bash
 vault login s.X6gvFko7chPilgV0lpWXsdeu
 ```
-    
+
     Success! You are now authenticated. The token information displayed below
     is already stored in the token helper. You do NOT need to run "vault login"
     again. Future Vault requests will automatically use this token.
-    
+
     Key                  Value
     ---                  -----
     token                s.X6gvFko7chPilgV0lpWXsdeu
@@ -957,13 +927,17 @@ vault login s.X6gvFko7chPilgV0lpWXsdeu
 
 Verify that you can write any data to `secret/data/`.
 
-**NOTE:** When you access the [KV v2 secrets engine](https://www.vaultproject.io/docs/secrets/kv/kv-v2/) using the `vault kv` CLI commands, you can omit `/data` in the secret path.
+:exclamation: When you access the 
+
+[KV v2 secrets engine](https://www.vaultproject.io/docs/secrets/kv/kv-v2/)
+
+ using the `vault kv` CLI commands, you can omit `/data` in the secret path.
 
 :ship:
 ```bash
 vault kv put secret/creds password="my-long-password"
 ```
-    
+
     Key              Value
     ---              -----
     created_time     2018-05-22T18:05:42.537496856Z
@@ -977,12 +951,12 @@ Since `my-policy` only permits read from the `secret/data/foo` path, any attempt
 ```bash
 vault kv put secret/foo robot=beepboop
 ```
-    
+
     Error writing data to secret/data/foo: Error making API request.
-    
+
     URL: PUT http://127.0.0.1:8200/v1/secret/data/foo
     Code: 403. Errors:
-    
+
     * permission denied
 
 You also do not have access to `sys` according to the policy, so commands like `vault policy list` or `vault secrets list` will not work.
@@ -1004,7 +978,7 @@ Use the `vault path-help` system with your auth method to determine how the mapp
 ```bash
 vault write auth/github/map/teams/default value=my-policy
 ```
-    
+
     Success! Data written to: auth/github/map/teams/default
 
 For GitHub, the `default` team is the default policy set that everyone is assigned to no matter what team they're on.
@@ -1027,13 +1001,17 @@ On this page, we'll cover how to configure Vault, start Vault, the seal/unseal p
 
 ### Configuring Vault
 
-Vault is configured using [HCL](https://github.com/hashicorp/hcl) files. The configuration file for Vault is relatively simple:
+Vault is configured using 
+
+[HCL](https://github.com/hashicorp/hcl)
+
+ files. The configuration file for Vault is relatively simple:
 
     storage "consul" {
       address = "127.0.0.1:8500"
       path    = "vault/"
     }
-    
+
     listener "tcp" {
      address     = "127.0.0.1:8200"
      tls_disable = 1
@@ -1041,13 +1019,25 @@ Vault is configured using [HCL](https://github.com/hashicorp/hcl) files. The con
 
 Within the configuration file, there are two primary configurations:
 
-*   [`storage`](#storage) - This is the physical backend that Vault uses for storage. Up to this point the dev server has used "inmem" (in memory), but the example above uses [Consul](https://www.consul.io/), a much more production-ready backend.
-    
-*   [`listener`](#listener) - One or more listeners determine how Vault listens for API requests. The example above listens on localhost port 8200 without TLS. In your environment set `VAULT_ADDR=http://127.0.0.1:8200` so the Vault client will connect without TLS.
+*   
+
+[`storage`](#storage) - This is the physical backend that Vault uses for storage. Up to this point the dev server has used "inmem" (in memory), but the example above uses [Consul](https://www.consul.io/)
+
+, a much more production-ready backend.
+
+*   
+
+[`listener`](#listener)
+
+ - One or more listeners determine how Vault listens for API requests. The example above listens on localhost port 8200 without TLS. In your environment set `VAULT_ADDR=http://127.0.0.1:8200` so the Vault client will connect without TLS.
 
 For now, copy and paste the configuration above to a file called `config.hcl`. It will configure Vault to expect an instance of Consul running locally.
 
-Starting a local Consul instance takes only a few minutes. Just follow the [Consul Getting Started Guide](https://www.consul.io/intro/getting-started/install.html) up to the point where you have installed Consul and started it with this command:
+Starting a local Consul instance takes only a few minutes. Just follow the 
+
+[Consul Getting Started Guide](https://www.consul.io/intro/getting-started/install.html)
+
+ up to the point where you have installed Consul and started it with this command:
 
 :ship:
 ```bash
@@ -1062,9 +1052,9 @@ With the configuration in place, starting the server is simple, as shown below. 
 ```bash
 vault server -config=config.hcl
 ```
-    
+
     ==> Vault server configuration:
-    
+
                  Api Address: http://127.0.0.1:8200
                          Cgo: disabled
              Cluster Address: https://127.0.0.1:8201
@@ -1074,10 +1064,10 @@ vault server -config=config.hcl
                Recovery Mode: false
                      Storage: consul (HA available)
                      Version: Vault v1.3.2
-    
+
     ==> Vault server started! Log data will stream in below:
 
-**NOTE:** If you get a warning message about mlock not being supported, that is okay. However, for maximum security you should run Vault on a system that supports mlock.
+:exclamation: If you get a warning message about mlock not being supported, that is okay. However, for maximum security you should run Vault on a system that supports mlock.
 
 Vault outputs some information about its configuration, and then blocks. This process should be run using a resource manager such as systemd or upstart.
 
@@ -1089,9 +1079,9 @@ On Linux, Vault may fail to start with the following error:
 ```bash
 vault server -config=config.hcl
 ```
-    
+
     Error initializing core: Failed to lock memory: cannot allocate memory
-    
+
     This usually means that the mlock syscall is not available.
     Vault uses mlock to prevent memory from being swapped to
     disk. This requires root privileges as well as a machine
@@ -1100,7 +1090,11 @@ vault server -config=config.hcl
     set the `disable_mlock` configuration option in your configuration
     file.
 
-For guidance on dealing with this issue, see the discussion of `disable_mlock` in [Server Configuration](https://www.vaultproject.io/docs/configuration/index.html).
+For guidance on dealing with this issue, see the discussion of `disable_mlock` in 
+
+[Server Configuration](https://www.vaultproject.io/docs/configuration/index.html)
+
+.
 
 ### Initializing the Vault
 
@@ -1112,29 +1106,33 @@ During initialization, the encryption keys are generated, unseal keys are create
 ```bash
 vault operator init
 ```
-    
+
     Unseal Key 1: 4jYbl2CBIv6SpkKj6Hos9iD32k5RfGkLzlosrrq/JgOm
     Unseal Key 2: B05G1DRtfYckFV5BbdBvXq0wkK5HFqB9g2jcDmNfTQiS
     Unseal Key 3: Arig0N9rN9ezkTRo7qTB7gsIZDaonOcc53EHo83F5chA
     Unseal Key 4: 0cZE0C/gEk3YHaKjIWxhyyfs8REhqkRW/CSXTnmTilv+
     Unseal Key 5: fYhZOseRgzxmJCmIqUdxEm9C3jB5Q27AowER9w4FC2Ck
-    
+
     Initial Root Token: s.KkNJYWF5g0pomcCLEmDdOVCW
-    
+
     Vault initialized with 5 key shares and a key threshold of 3. Please securely
     distribute the key shares printed above. When the Vault is re-sealed,
     restarted, or stopped, you must supply at least 3 of these keys to unseal it
     before it can start servicing requests.
-    
+
     Vault does not store the generated master key. Without at least 3 key to
     reconstruct the master key, Vault will remain permanently sealed!
-    
+
     It is possible to generate new unseal keys, provided you have a quorum of
     existing unseal keys shares. See "vault operator rekey" for more information.
 
 Initialization outputs two incredibly important pieces of information: the _unseal keys_ and the _initial root token_. This is the **only time ever** that all of this data is known by Vault, and also the only time that the unseal keys should ever be so close together.
 
-For the purpose of this getting started guide, save all of these keys somewhere, and continue. In a real deployment scenario, you would never save these keys together. Instead, you would likely use Vault's PGP and Keybase.io support to encrypt each of these keys with the users' PGP keys. This prevents one single person from having all the unseal keys. Please see the documentation on [using PGP, GPG, and Keybase](https://www.vaultproject.io/docs/concepts/pgp-gpg-keybase.html) for more information.
+For the purpose of this getting started guide, save all of these keys somewhere, and continue. In a real deployment scenario, you would never save these keys together. Instead, you would likely use Vault's PGP and Keybase.io support to encrypt each of these keys with the users' PGP keys. This prevents one single person from having all the unseal keys. Please see the documentation on 
+
+[using PGP, GPG, and Keybase](https://www.vaultproject.io/docs/concepts/pgp-gpg-keybase.html)
+
+ for more information.
 
 ### Seal/Unseal
 
@@ -1142,7 +1140,11 @@ Every initialized Vault server starts in the _sealed_ state. From the configurat
 
 Unsealing has to happen every time Vault starts. It can be done via the API and via the command line. To unseal the Vault, you must have the _threshold_ number of unseal keys. In the output above, notice that the "key threshold" is 3. This means that to unseal the Vault, you need 3 of the 5 keys that were generated.
 
-:flashlight: Vault does not store any of the unseal key shards. Vault uses an algorithm known as [Shamir's Secret Sharing](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing) to split the master key into shards. Only with the threshold number of keys can it be reconstructed and your data finally accessed.
+:flashlight: Vault does not store any of the unseal key shards. Vault uses an algorithm known as 
+
+[Shamir's Secret Sharing](https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing)
+
+ to split the master key into shards. Only with the threshold number of keys can it be reconstructed and your data finally accessed.
 
 Begin unsealing the Vault:
 
@@ -1150,7 +1152,7 @@ Begin unsealing the Vault:
 ```bash
 vault operator unseal
 ```
-    
+
     Unseal Key (will be hidden):
     Key                Value
     ---                -----
@@ -1174,7 +1176,7 @@ Continue with `vault operator unseal` to complete unsealing the Vault. To unseal
 ```bash
 vault operator unseal
 ```
-    
+
     Unseal Key (will be hidden):
     # ...
 
@@ -1205,11 +1207,11 @@ Finally, authenticate as the initial root token (it was included in the output w
 ```bash
 vault login s.KkNJYWF5g0pomcCLEmDdOVCW
 ```
-    
+
     Success! You are now authenticated. The token information displayed below
     is already stored in the token helper. You do NOT need to run "vault login"
     again. Future Vault requests will automatically use this token.
-    
+
     Key                  Value
     ---                  -----
     token                s.KkNJYWF5g0pomcCLEmDdOVCW
@@ -1232,7 +1234,11 @@ You now know how to configure, initialize, and unseal/seal Vault. This is the ba
 
 All of Vault's capabilities are accessible via the HTTP API in addition to the CLI. In fact, most calls from the CLI actually invoke the HTTP API. In some cases, Vault features are not available via the CLI and can only be accessed via the HTTP API.
 
-Once you have started the Vault server, you can use Client URL (cURL) or any other http client to make API calls. For example, if you started the Vault server in [dev mode](https://www.vaultproject.io/docs/concepts/dev-server.html), you could validate the initialization status like this:
+Once you have started the Vault server, you can use Client URL (cURL) or any other http client to make API calls. For example, if you started the Vault server in 
+
+[dev mode](https://www.vaultproject.io/docs/concepts/dev-server.html)
+
+, you could validate the initialization status like this:
 
 :ship:
 ```bash
@@ -1247,14 +1253,18 @@ This will return a JSON response:
 
 ### Accessing Secrets via the REST APIs
 
-Machines that need access to information stored in Vault will most likely access Vault via its REST API. For example, if a machine were using [AppRole](https://www.vaultproject.io/docs/auth/approle.html) for authentication, the application would first authenticate to Vault which would return a Vault API token. The application would use that token for future communication with Vault.
+Machines that need access to information stored in Vault will most likely access Vault via its REST API. For example, if a machine were using 
+
+[AppRole](https://www.vaultproject.io/docs/auth/approle.html)
+
+ for authentication, the application would first authenticate to Vault which would return a Vault API token. The application would use that token for future communication with Vault.
 
 For the purpose of this guide, we will use the following configuration which disables TLS and uses a file-based backend. TLS is disabled here only for example purposes; it should never be disabled in production.
 
     backend "file" {
       path = "vault"
     }
-    
+
     listener "tcp" {
       tls_disable = 1
     }
@@ -1268,7 +1278,11 @@ vault server -config=config.hcl
 
 At this point, we can use Vault's API for all our interactions. For example, we can initialize Vault like this.
 
-**NOTE:** This example uses [jq](https://stedolan.github.io/jq/download/) to process the JSON output for readability.
+:exclamation: This example uses 
+
+[jq](https://stedolan.github.io/jq/download/)
+
+ to process the JSON output for readability.
 
 :ship:
 ```bash
@@ -1327,9 +1341,17 @@ Note that you should replace `/ye2PeRrd/qru...` with the generated key from your
       "storage_type": "file"
     }
 
-Now any of the available auth methods can be enabled and configured. For the purposes of this guide lets enable [AppRole](https://www.vaultproject.io/docs/auth/approle.html) authentication.
+Now any of the available auth methods can be enabled and configured. For the purposes of this guide lets enable 
 
-The [Authentication](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/authentication#auth-methods) guide showed how to enable the GitHub auth method using Vault CLI.
+[AppRole](https://www.vaultproject.io/docs/auth/approle.html)
+
+ authentication.
+
+The 
+
+[Authentication](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/authentication#auth-methods)
+
+ guide showed how to enable the GitHub auth method using Vault CLI.
 
 :ship:
 ```bash
@@ -1356,9 +1378,17 @@ curl \
 
 Notice that the request to enable the AppRole endpoint needed an authentication token. In this case we are passing the root token generated when we started the Vault server. We could also generate tokens using any other authentication mechanisms, but we will use the root token for simplicity.
 
-Now create an AppRole with desired set of [ACL policies](https://www.vaultproject.io/docs/concepts/policies.html).
+Now create an AppRole with desired set of 
 
-The [Policies](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/policies) guide used CLI to create `my-policy`. In this guide, use the `/sys/policies/acl` endpoint to create the same policy via Vault API.
+[ACL policies](https://www.vaultproject.io/docs/concepts/policies.html)
+
+.
+
+The 
+
+[Policies](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/policies)
+
+ guide used CLI to create `my-policy`. In this guide, use the `/sys/policies/acl` endpoint to create the same policy via Vault API.
 
 :ship:
 ```bash
@@ -1457,7 +1487,11 @@ The response will be JSON, under the key `auth`:
       "orphan": true
     }
 
-The returned client token (`s.p5NB4dTlsPiUU94RA5IfbzXv`) can be used to authenticate with Vault. This token will be authorized with specific capabilities on all the resources encompassed by the `default` and `my-policy` policies. (As it was mentioned in the [Policies](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/policies) guide, the `default` policy is attached to all tokens by default. )
+The returned client token (`s.p5NB4dTlsPiUU94RA5IfbzXv`) can be used to authenticate with Vault. This token will be authorized with specific capabilities on all the resources encompassed by the `default` and `my-policy` policies. (As it was mentioned in the 
+
+[Policies](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/policies) guide, the `default` policy is attached to all tokens by default. )
+
+
 
 The newly acquired token can be exported as the `VAULT_TOKEN` environment variable value and used to authenticate subsequent Vault requests.
 
@@ -1491,7 +1525,11 @@ You can stop the server and unset the `VAULT_TOKEN` environment variable.
 unset VAULT_TOKEN
 ```
 
-You can see the documentation on the [HTTP APIs](https://www.vaultproject.io/api/index.html) for more details on other available endpoints.
+You can see the documentation on the 
+
+[HTTP APIs](https://www.vaultproject.io/api/index.html)
+
+ for more details on other available endpoints.
 
 Congratulations! You now know all the basics needed to get started with Vault.> Vault comes with support for a user-friendly and functional web UI out of the box. In this guide we will explore the Vault UI.
 
@@ -1513,18 +1551,22 @@ Open a web browser and enter `http://127.0.0.1:8200/ui` to launch the UI.
 
 Enter the initial root token to sign in.
 
-![Sign in](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/img/vault-autounseal-3.png)
+!
+
+[Sign in](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/img/vault-autounseal-3.png)
+
+
 
 ### Non-Dev servers
 
 The Vault UI is not activated by default. To activate the UI, set the `ui` configuration option in the Vault server configuration.
 
     ui = true
-    
+
     listener "tcp" {
       
     }
-    
+
     storage "consul" {
       
     }
@@ -1534,10 +1576,10 @@ The UI runs on the same port as the Vault listener. As such, you must configure 
 **Example:**
 
     ui = true
-    
+
     listener "tcp" {
       address = "10.0.1.35:8200"
-    
+
       
       
       
@@ -1551,256 +1593,320 @@ It is also accessible at any DNS entry that resolves to that IP address, such as
 
 Vault UI has a built-in guide to navigate you through the common steps to operate various Vault features.
 
-![Sign in](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/img/vault-ui-wizard.png)> Resources and further tracks now that you're confident using Vault.
+!
+
+[Sign in](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/img/vault-ui-wizard.png)
+
+> Resources and further tracks now that you're confident using Vault.
 
 ## Next Steps | Vault - HashiCorp Learn
 
+
+
 [](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault)
+
+
+
+
 
 [Learn Vault](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault)
 
+
+
 /Getting Started
 
-*   [Getting Started](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=getting-started#getting-started)
-*   [Kubernetes](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=getting-started-k8s#getting-started-k8s)
-*   [Product Certification Exam Prep](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=certification#certification)
-*   [Vault 1.4 Release Highlights](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=new-release#new-release)
-*   [Day 1: Deploying Your First Vault Cluster](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=day-one#day-one)
-*   [Secrets Management](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=secrets-management#secrets-management)
-*   [Advanced Data Protection](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=ADP#ADP)
-*   [Data Encryption](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=encryption-as-a-service#encryption-as-a-service)
-*   [Access Management](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=identity-access-management#identity-access-management)
-*   [Monitoring & Troubleshooting](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=monitoring#monitoring)
-*   [Security](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=security#security)
-*   [Operations](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=operations#operations)
-*   [Developer](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=developer#developer)
+*   
+
+[Getting Started](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=getting-started#getting-started)
+
+
+*   
+
+[Kubernetes](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=getting-started-k8s#getting-started-k8s)
+
+
+*   
+
+[Product Certification Exam Prep](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=certification#certification)
+
+
+*   
+
+[Vault 1.4 Release Highlights](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=new-release#new-release)
+
+
+*   
+
+[Day 1: Deploying Your First Vault Cluster](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=day-one#day-one)
+
+
+*   
+
+[Secrets Management](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=secrets-management#secrets-management)
+
+
+*   
+
+[Advanced Data Protection](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=ADP#ADP)
+
+
+*   
+
+[Data Encryption](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=encryption-as-a-service#encryption-as-a-service)
+
+
+*   
+
+[Access Management](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=identity-access-management#identity-access-management)
+
+
+*   
+
+[Monitoring & Troubleshooting](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=monitoring#monitoring)
+
+
+*   
+
+[Security](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=security#security)
+
+
+*   
+
+[Operations](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=operations#operations)
+
+
+*   
+
+[Developer](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=developer#developer)
+
+
 
 /Next Steps
 
 *   [
-    
+
     ###### Install Vault
-    
+
     2 minThe first step to using Vault is to get it installed.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/install)
 *   [
-    
+
     ###### Starting the Server
-    
+
     5 minAfter installing Vault, the next step is to start the server.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/dev-server)
 *   [
-    
+
     ###### Your First Secret
-    
+
     5 minWith the Vault server running, let's read and write our first secret.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/first-secret)
 *   [
-    
+
     ###### Secrets Engines
-    
+
     5 minSecrets engines create, read, update, and delete secrets.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/secrets-engines)
 *   [
-    
+
     ###### Dynamic Secrets
-    
+
     10 minOn this page we introduce dynamic secrets by showing you how to create AWS access keys with Vault.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/dynamic-secrets)
 *   [
-    
+
     ###### Built-in Help
-    
+
     5 minVault has a built-in help system to learn about the available paths in Vault and how to use them.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/help)
 *   [
-    
+
     ###### Authentication
-    
+
     5 minUsers can authenticate to Vault using multiple methods.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/authentication)
 *   [
-    
+
     ###### Policies
-    
+
     10 minPolicies in Vault control what a user can access.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/policies)
 *   [
-    
+
     ###### Deploy Vault
-    
+
     5 minLearn how to deploy Vault, including configuring, starting, initializing, and unsealing it.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/deploy)
 *   [
-    
+
     ###### Using the HTTP APIs with Authentication
-    
+
     5 minHTTP APIs can control authentication and access to secrets.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/apis)
 *   [
-    
+
     ###### Web UI
-    
+
     5 minVault comes with support for a user-friendly and functional web UI out of the box. In this guide we will explore the Vault UI.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/ui)
 *   [
-    
+
     ###### Next Steps
-    
+
     2 minResources and further tracks now that you're confident using Vault.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/next-steps)
 
 *   [
-    
+
     •
-    
+
     Overview](#overview)
 
 Getting Started
 
 *   [
-    
+
     ###### Install Vault
-    
+
     2 minThe first step to using Vault is to get it installed.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/install)
 *   [
-    
+
     ###### Starting the Server
-    
+
     5 minAfter installing Vault, the next step is to start the server.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/dev-server)
 *   [
-    
+
     ###### Your First Secret
-    
+
     5 minWith the Vault server running, let's read and write our first secret.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/first-secret)
 *   [
-    
+
     ###### Secrets Engines
-    
+
     5 minSecrets engines create, read, update, and delete secrets.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/secrets-engines)
 *   [
-    
+
     ###### Dynamic Secrets
-    
+
     10 minOn this page we introduce dynamic secrets by showing you how to create AWS access keys with Vault.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/dynamic-secrets)
 *   [
-    
+
     ###### Built-in Help
-    
+
     5 minVault has a built-in help system to learn about the available paths in Vault and how to use them.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/help)
 *   [
-    
+
     ###### Authentication
-    
+
     5 minUsers can authenticate to Vault using multiple methods.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/authentication)
 *   [
-    
+
     ###### Policies
-    
+
     10 minPolicies in Vault control what a user can access.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/policies)
 *   [
-    
+
     ###### Deploy Vault
-    
+
     5 minLearn how to deploy Vault, including configuring, starting, initializing, and unsealing it.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/deploy)
 *   [
-    
+
     ###### Using the HTTP APIs with Authentication
-    
+
     5 minHTTP APIs can control authentication and access to secrets.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/apis)
 *   [
-    
+
     ###### Web UI
-    
+
     5 minVault comes with support for a user-friendly and functional web UI out of the box. In this guide we will explore the Vault UI.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/ui)
 *   [
-    
+
     ###### Next Steps
-    
+
     2 minResources and further tracks now that you're confident using Vault.
-    
-    
-    
+
+
+
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/next-steps)
 
 Getting Started
@@ -1821,7 +1927,11 @@ That concludes the getting started guide for Vault. Hopefully you're excited abo
 
 We've covered the basics of all the core features of Vault in this guide. Due to the importance of securing secrets, we recommend reading the following as next steps.
 
-*   [Documentation](https://www.vaultproject.io/docs/index.html) - The documentation is an in-depth reference guide to all the features of Vault.
+*   
+
+[Documentation](https://www.vaultproject.io/docs/index.html)
+
+ - The documentation is an in-depth reference guide to all the features of Vault.
 
 Was this guide helpful?
 
@@ -1846,7 +1956,7 @@ Explore Operations & Development Tracks
 On This Page
 
 *   [
-    
+
     •
-    
+
     Overview](#overview)
