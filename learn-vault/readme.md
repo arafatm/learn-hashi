@@ -2,9 +2,7 @@
 
 https://learn.hashicorp.com/vault#getting-started
 
-## Install Vault | Vault - HashiCorp Learn
-
-https://learn.hashicorp.com/vault/getting-started/install
+## Install Vault | https://learn.hashicorp.com/vault/getting-started/install
 
 ### Installing Vault
 
@@ -26,7 +24,7 @@ vault -autocomplete-install
 exec $SHELL
 ```
 
-## Starting the Server
+## Starting the Server | https://learn.hashicorp.com/vault/getting-started/dev-server
 
 Vault operates as a client/server application. 
 
@@ -60,9 +58,7 @@ anything else:
 vault status
 ```
 
-## Your First Secret
-
-https://learn.hashicorp.com/vault/getting-started/first-secret
+## Your First Secret | https://learn.hashicorp.com/vault/getting-started/first-secret
 
 Using CLI here, but also can 
 [HTTP API](https://www.vaultproject.io/api/index.html)
