@@ -1,0 +1,7 @@
+export VAULT_ADDR='http://127.0.0.1:8200'
+
+# Unseal Key: VrN0iqSGvv8aqkiOZiIa2+saADcAmP4LrHRNLoeBKcs=
+# Root Token: s.tpwO4gkXUcXS0ytWhkqgJWtJ
+
+
+
