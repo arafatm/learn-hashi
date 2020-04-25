@@ -338,7 +338,7 @@ value is used for renewal, revocation, and inspection.
 :ship: To revoke the secret, use `vault revoke` with the lease ID that was
 outputted from `vault read` when you ran it
 ```bash
-vault lease revoke aws/creds/my-role/0bce0782-32aa-25ec-f61d-c026ff22106
+vault lease revoke LEASE_ID
 ```
 
 ## Built-in Help | Vault - HashiCorp Learn
@@ -347,7 +347,7 @@ You've now worked with `vault write` and `vault read` for multiple paths: the `k
 
 Instead of having to memorize or reference documentation constantly to determine what paths to use, Vault has a built-in help system. This help system can be accessed via the API or the command-line and generates human-readable help for any path.
 
-### Secrets Engines Overview
+### Secrets Engines Overview | https://learn.hashicorp.com/vault/getting-started/help
 
 This section assumes you have the AWS secrets engine enabled at `aws/`. If you do not, enable it before continuing:
 
