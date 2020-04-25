@@ -2,6 +2,14 @@
 
 https://learn.hashicorp.com/vault#getting-started
 
+## cheatsheet
+
+```bash
+vault secrets list
+vault kv list secret/
+vault kv get secret/hello  
+```
+
 ## Install Vault | https://learn.hashicorp.com/vault/getting-started/install
 
 ### Installing Vault
