@@ -1,7 +1,10 @@
+#!/bin/bash
+
 export VAULT_ADDR='http://127.0.0.1:8200'
 
-# Unseal Key: VrN0iqSGvv8aqkiOZiIa2+saADcAmP4LrHRNLoeBKcs=
-# Root Token: s.tpwO4gkXUcXS0ytWhkqgJWtJ
+export VAULT_DEV_ROOT_TOKEN="s.9DwYR4GpZab1DF125ldPePUN"
+
+# Unseal Key: AbMWLa6i/jRsmCqVqfAtArZEv+Z05XeE2QNCIJONTOE=
 
 
 

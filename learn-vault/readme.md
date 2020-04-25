@@ -60,7 +60,7 @@ vault status
 
 ## Your First Secret | https://learn.hashicorp.com/vault/getting-started/first-secret
 
-Using CLI here, but also can 
+Using [CLI](https://www.vaultproject.io/docs/commands) here, but can also 
 [HTTP API](https://www.vaultproject.io/api/index.html)
 
 Using **inmem** backend in `-dev` but can use [Consul](https://www.consul.io/)
@@ -108,57 +108,29 @@ vault kv get -format=json secret/hello | jq -r .data.data.excited
 vault kv delete secret/hello
 ```
 
-## Secrets Engines | Vault - HashiCorp Learn
+## Secrets Engines | https://learn.hashicorp.com/vault/getting-started/secrets-engines
 
-Previously, we saw how to read and write arbitrary secrets to Vault. You may have noticed all requests started with `secret/`. Try the following command which will result an error:
-
-:ship:
-```bash
-vault kv put foo/bar a=b
-```
-
-    Error making API request.
-
-    URL: GET http://localhost:8200/v1/sys/internal/ui/mounts/foo/bar
-    Code: 403. Errors:
-
-    * preflight capability check returned 403, ... grant access to path "foo/bar/"
-
-The path prefix tells Vault which secrets engine to which it should route traffic. When a request comes to Vault, it matches the initial path part using a longest prefix match and then passes the request to the corresponding secrets engine enabled at that path. Vault presents these secrets engines similar to a filesystem.
-
-By default, Vault enables 
-
-[Key/Value version2 secrets engine](https://www.vaultproject.io/docs/secrets/kv/kv-v2/) (`kv-v2`)
-
- at the path `secret/` when running in `dev` mode. The key/value secrets engine reads and writes raw data to the backend storage. Vault supports many other secrets engines, and this feature makes Vault flexible and unique.
-
-:exclamation: The key/value secrets engine has two versions: `kv` (version 1) and `kv-v2` (version 2). The `kv-v2` is versioned `kv` secrets engine which can retain a number of secrets versions.
-
-This page discusses secrets engines and the operations they support. This information is important to both operators who will configure Vault and users who will interact with Vault.
+:flashlight: By default, Vault enables [Key/Value version2 secrets
+engine](https://www.vaultproject.io/docs/secrets/kv/kv-v2/) at the path
+`secret/` when running in `dev` mode. 
 
 ### Enable a Secrets Engine
 
-To get started, enable the `kv` secrets engine. Each path is completely isolated and cannot talk to other paths. For example, a `kv` secrets engine enabled at `foo` has no ability to communicate with a `kv` secrets engine enabled at `bar`.
-
-:ship:
+:ship: enable a new `kv` [Secrets Engine](https://www.vaultproject.io/docs/secrets)
 ```bash
 vault secrets enable -path=kv kv
 ```
 
-    Success! Enabled the kv secrets engine at: kv/
-
-The path where the secrets engine is enabled defaults to the name of the secrets engine. Thus, the following command is equivalent to executing the above command.
-
-:ship:
+:flashlight:  Each path is completely isolated and cannot talk to other paths.
+For example, a `kv` secrets engine enabled at `foo` has no ability to
+communicate with a `kv` secrets engine enabled at `bar`.
+:
+:ship: If `-path` is not specified it defaults. This is same as above.
 ```bash
 vault secrets enable kv
 ```
 
-Executing this command will throw the `path is already in use at kv/` error.
-
-To verify our success and get more information about the secrets engine, use the `vault secrets list` command:
-
-:ship:
+:ship: To verify our success and get more information about the secrets engine 
 ```bash
 vault secrets list
 ```
@@ -171,23 +143,18 @@ vault secrets list
     secret/       kv           kv_4b990c45           key/value secret storage
     sys/          system       system_adff0898       system endpoints used for control, policy and debugging
 
-This shows there are 4 enabled secrets engines on this Vault server. You can see the type of the secrets engine, the corresponding path, and an optional description (or "n/a" if none was given).
+:flashlight: The `sys/` path corresponds to the system backend. These paths
+interact with Vault's core system and are not required for beginners.
 
-The `sys/` path corresponds to the system backend. These paths interact with Vault's core system and are not required for beginners.
-
-Take a few moments to read and write some data to the new `kv` secrets engine enabled at `kv/`. Here are a few ideas to get started.
-
-To create secrets, use the `kv put` command.
-
-:ship:
+:ship: To create secrets, use the `kv put` command.
 ```bash
 vault kv put kv/hello target=world
 ```
+
     Success! Data written to: kv/hello
 
-To read the secrets stored in the `kv/hello` path, use the `kv get` command.
 
-:ship:
+:ship: To read the secrets stored in the `kv/hello` path
 ```bash
 vault kv get kv/hello
 ```
@@ -197,37 +164,23 @@ vault kv get kv/hello
     ---       -----
     target    world
 
-Creat secrets at the `kv/my-secret` path.
-
-:ship:
+:ship: Create secrets at the `kv/my-secret` path.
 ```bash
 vault kv put kv/my-secret value="s3c(eT"
 ```
-    Success! Data written to: kv/my-secret
 
-Read the secrets at `kv/my-secret`.
-
-:ship:
+:ship: Read the secrets at `kv/my-secret`.
 ```bash
 vault kv get kv/my-secret
 ```
 
-    ==== Data ====
-    Key      Value
-    ---      -----
-    value    s3c(eT
-
-Delete the secrets at `kv/my-secret`.
-
-:ship:
+:ship: Delete the secrets at `kv/my-secret`.
 ```bash
 vault kv delete kv/my-secret
 ```
-    Success! Data deleted (if it existed) at: kv/my-secret
 
-List existing keys at the `kv` path.
 
-:ship:
+:ship: List existing keys at the `kv` path.
 ```bash
 vault kv list kv/
 ```
@@ -238,34 +191,26 @@ vault kv list kv/
 
 ### Disable a Secrets Engine
 
-When a secrets engine is no longer needed, it can be disabled. When a secrets engine is disabled, all secrets are revoked and the corresponding Vault data and configuration is removed.
+:flashlight: When a secrets engine is disabled, all secrets are revoked and the
+corresponding Vault data and configuration is removed.
 
-:ship:
+:ship: Disable engine
 ```bash
 vault secrets disable kv/
 ```
 
-    Success! Disabled the secrets engine (if it existed) at: kv/
-
-Note that this command takes a PATH to the secrets engine as an argument, not the TYPE of the secrets engine.
-
-Any requests to route data to the original path would result in an error, but another secrets engine could now be enabled at that path.
+:exclamation: this command takes a `PATH` to the secrets engine as an argument,
+not the `TYPE` of the secrets engine.
 
 ### What is a Secrets Engine?
 
-Now that you've successfully enabled and disabled a secrets engine... what is it? What is the point of a secrets engine?
-
-As mentioned above, Vault behaves similarly to a 
-
+Vault behaves similarly to a 
 [virtual filesystem](https://en.wikipedia.org/wiki/Virtual_file_system)
 
-. The read/write/delete/list operations are forwarded to the corresponding secrets engine, and the secrets engine decides how to react to those operations.
-
-This abstraction is incredibly powerful. It enables Vault to interface directly with physical systems, databases, HSMs, etc. But in addition to these physical systems, Vault can interact with more unique environments like AWS IAM, dynamic SQL user creation, etc. all while using the same read/write interface.
-
-### Next
-
-You now know about secrets engines and how to operate on them. This is important knowledge to move forward and learn about other secrets engines.> On this page we introduce dynamic secrets by showing you how to create AWS access keys with Vault.
+This abstraction is incredibly powerful. It enables Vault to interface directly
+with physical systems, databases, HSMs, etc. But in addition to these physical
+systems, Vault can interact with more unique environments like AWS IAM, dynamic
+SQL user creation, etc. all while using the same read/write interface.
 
 ## Dynamic Secrets | Vault - HashiCorp Learn
 
@@ -1319,7 +1264,7 @@ curl \
         --data '{"key": "/ye2PeRrd/qruh9Ppu9EyUjk1vLqIflg1qqw6w9OE5E="}' \
         http://127.0.0.1:8200/v1/sys/unseal | jq
 
-Note that you should replace `/ye2PeRrd/qru...` with the generated key from your output. This will return a JSON response:
+:exclamation: that you should replace `/ye2PeRrd/qru...` with the generated key from your output. This will return a JSON response:
 
     {
       "type": "shamir",
