@@ -49,8 +49,6 @@ Look for the following lines:
 
     Unseal Key: 1+yv+v5mz+aSCK67X6slL3ECxb4UDL8ujWZU/ONBpn0=
     Root Token: s.XmpNPoi9sRhYtdKHaQhkHP6x
-
-
 :warning: Do not run a dev server in production!
 
 :ship: With the dev server running, do the following four things before
@@ -160,8 +158,6 @@ vault kv put kv/hello target=world
 ```
 
     Success! Data written to: kv/hello
-
-
 :ship: To read the secrets stored in the `kv/hello` path
 ```bash
 vault kv get kv/hello
@@ -186,8 +182,6 @@ vault kv get kv/my-secret
 ```bash
 vault kv delete kv/my-secret
 ```
-
-
 :ship: List existing keys at the `kv` path.
 ```bash
 vault kv list kv/
@@ -333,8 +327,6 @@ value is used for renewal, revocation, and inspection.
 
 :exclamation: Vault will automatically revoke this credential after 768 hours
 (see `lease_duration` in the output)
-
-
 :ship: To revoke the secret, use `vault revoke` with the lease ID that was
 outputted from `vault read` when you ran it
 ```bash
@@ -431,282 +423,143 @@ Go ahead and explore more paths! Enable other secrets engines, traverse their he
 
 The help system may not be the most exciting feature of Vault, but it is indispensable in day-to-day usage. The help system lets you learn about how to use any backend within Vault without leaving the command line.> Users can authenticate to Vault using multiple methods.
 
-## Authentication | Vault - HashiCorp Learn
+## Authentication | https://learn.hashicorp.com/vault/getting-started/authentication
 
-Now that we know how to use the basics of Vault, it is important to understand how to authenticate to Vault itself. Up to this point, we have not logged in to Vault. When starting the Vault server in `dev` mode, it automatically logs you in as the root user with admin permissions. In a non-dev setup, you would have had to authenticate first.
+:warning: When starting the Vault server in `dev` mode, it automatically logs
+you in as the root user with admin permissions. In a non-dev setup, you would
+have had to authenticate first.
 
-On this page, we'll talk specifically about authentication. On the next page, we talk about 
+Authentication is the mechanism of assigning an identity to a Vault user. 
 
-[authorization](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/policies)
+The access control and permissions associated with an identity are
+authorization https://learn.hashicorp.com/vault/getting-started/policies)
 
-. Authentication is the mechanism of assigning an identity to a Vault user. The access control and permissions associated with an identity are authorization, and will not be covered on this page.
-
-Vault has pluggable auth methods, making it easy to authenticate with Vault using whatever form works best for your organization. On this page we will use the token auth method and the GitHub auth method.
-
-### Background
-
-Authentication is the process by which user or machine-supplied information is verified and converted into a Vault token with matching policies attached. The easiest way to think about Vault's authentication is to compare it to a website.
-
-When a user authenticates to a website, they enter their username, password, and maybe 2FA code. That information is verified against external sources (a database most likely), and the website responds with a success or failure. On success, the website also returns a signed cookie that contains a session id which uniquely identifies that user for this session. That cookie and session id are automatically carried by the browser to future requests so the user is authenticated. Can you imagine how terrible it would be to require a user to enter their login credentials on each page?
-
-Vault behaves very similarly, but it is much more flexible and pluggable than a standard website. Vault supports many different authentication mechanisms, but they all funnel into a single "session token", which we call the "Vault token".
-
-Authentication is simply the process by which a user or machine gets a Vault token.
+Vault has pluggable auth methods https://www.vaultproject.io/docs/auth 
 
 ### Tokens
 
-Token authentication is enabled by default in Vault and cannot be disabled. When you start a dev server with `vault server -dev`, it prints your _root token_. The root token is the initial access token to configure Vault. It has root privileges, so it can perform any operation within Vault.
+Token authentication is enabled by default in Vault and cannot be disabled.
 
-You can create more tokens using the `vault token create` command.
-
-:ship:
+When you start a dev server with `vault server -dev`, it prints your _root
+token_. The root token is the initial access token to configure Vault. It has
+root privileges, so it can perform any operation within Vault.
+:ship: Create more tokens using the `vault token create` command.
 ```bash
 vault token create
 ```
 
-    Key                  Value
-    ---                  -----
-    token                s.iyNUhq8Ov4hIAx6snw5mB2nL
-    token_accessor       maMfHsZfwLB6fi18Zenj3qh6
-    token_duration       ∞
-    token_renewable      false
-    token_policies       ["root"]
-    identity_policies    []
-    policies             ["root"]
+:warning: By default, this will create a child token of your current token that
+inherits all the same policies. 
 
-By default, this will create a child token of your current token that inherits all the same policies. The "child" concept here is important: tokens always have a parent, and when that parent token is revoked, children can also be revoked all in one operation. This makes it easy when removing access for a user, to remove access for all sub-tokens that user created as well.
+:flashlight: When that parent token is revoked, children can also be revoked
+all in one operation. 
 
-To authenticate with a token, execute the `vault login` command.
-
-:ship:
+:ship: Authenticate with a token
 ```bash
-vault login s.iyNUhq8Ov4hIAx6snw5mB2nL
+vault login VAULT_TOKEN
 ```
 
-    Success! You are now authenticated. The token information displayed below
-    is already stored in the token helper. You do NOT need to run "vault login"
-    again. Future Vault requests will automatically use this token.
-
-    Key                  Value
-    ---                  -----
-    token                s.iyNUhq8Ov4hIAx6snw5mB2nL
-    token_accessor       maMfHsZfwLB6fi18Zenj3qh6
-    token_duration       ∞
-    token_renewable      false
-    token_policies       ["root"]
-    identity_policies    []
-    policies             ["root"]
-
-This authenticates with Vault. It will verify your token and let you know what access policies the token is associated with.
-
-After a token is created, you can revoke it.
-
-:ship:
+:ship: After a token is created, you can revoke it.
 ```bash
-vault token revoke s.V6T0DxxIg5FbBSre61y1WLgm
+vault token revoke VAULT_TOKEN
 ```
 
-    Success! Revoked token (if it existed)
-
-In a previous section, we used the `vault lease revoke` command. This command is only used for revoking _leases_. For revoking _tokens_, use `vault token revoke`.
-
-Log back in with root token.
-
-:ship:
+:ship: Log back in with root token.
 ```bash
 vault login $VAULT_DEV_ROOT_TOKEN_ID
 ```
 
-#### 
+#### Recommended Patterns
 
-[»](#recommended-patterns)
-
-Recommended Patterns
-
-
-In practice, operators should not use the `token create` command to generate Vault tokens for users or machines. Instead, those users or machines should authenticate to Vault using any of Vault's configured auth methods such as GitHub, LDAP, AppRole, etc. For legacy applications which cannot generate their own token, operators may need to create a token in advance. Auth methods are discussed in more detail in the next section.
+In practice, operators should not use the `token create` command to generate
+Vault tokens for users or machines. Instead, those users or machines should
+authenticate to Vault using any of Vault's configured auth methods such as
+GitHub, LDAP, AppRole, etc. For legacy applications which cannot generate their
+own token, operators may need to create a token in advance. Auth methods are
+discussed in more detail in the next section.
 
 ### Auth Methods
 
-Vault supports many auth methods, but they must be enabled before use. Auth methods give you flexibility. Enabling and configuring auth methods are typically performed by a Vault operator or security team. As an example of a human-focused auth method, let's authenticate via GitHub.
+We can use GitHub Auth https://www.vaultproject.io/docs/auth/github
 
-First, enable the GitHub auth method.
-
-:ship:
+:ship: Authenticate via GitHub.
 ```bash
 vault auth enable -path=github github
 ```
 
-    Success! Enabled github auth method at: github/
+:exclamation: Just like secrets engines, auth methods default to their TYPE as
+the PATH, so the following commands are equivalent.
 
-:exclamation: Just like secrets engines, auth methods default to their TYPE as the PATH, so the following commands are equivalent.
-
-:ship:
-```bash
-vault auth enable -path=github github
-```
-
-:ship:
 ```bash
 vault auth enable github
 ```
 
-Unlike secrets engines which are enabled at the root router, auth methods are always prefixed with `auth/` in their path. So the GitHub auth method we just enabled is accessible at `auth/github`. As another example:
-
-:ship:
+:ship: Another example with custom path
 ```bash
 vault auth enable -path=my-github github
 ```
 
-    Success! Enabled github auth method at: my-github/
-
-This would make the GitHub auth method accessible at `auth/my-github`. You can use `vault path-help` to learn more about the paths.
-
-Each auth method has different configuration options, so please see the documentation for the full details.
-
-With the GitHub auth method enabled, we next tell it which organization users must be a part of.
-
-:ship:
+:ship: Set the user's GitHub Org
 ```bash
-vault write auth/github/config organization=hashicorp
+vault write auth/github/config organization=my-github-org
 ```
 
-    Success! Data written to: auth/github/config
-
-The above command configured Vault to pull authentication data from the "hashicorp" organization on GitHub.
-
-Map policies to a team within the organization.
-
-:ship:
+:ship: Map policies to a team within the organization.
 ```bash
 vault write auth/github/map/teams/my-team value=default,my-policy
 ```
-
-    Success! Data written to: auth/github/map/teams/my-team
 
 This command tells Vault to map any users who are members of the team "my-team" (in the hashicorp organization) to the policies "default" and "my-policy".
 
 :exclamation: These policies do not have to exist in the system yet - Vault will just produce a warning when you login.
 
-As a user, you may want to find which auth methods are enabled and available.
-
-:ship:
+:ship: As a user, you may want to find which auth methods are enabled and available.
 ```bash
 vault auth list
 ```
 
-    Path       Type      Description
-    ----       ----      -----------
-    github/    github    n/a
-    token/     token     token based credentials
-
-The `vault auth list` command will list all enabled auth methods. To learn more about how to authenticate to a particular auth method via the CLI, use the `vault auth help` command with the PATH or TYPE of an auth method.
-
-:ship:
+:ship: To get help on Github Auth
 ```bash
 vault auth help github
 ```
 
-    Usage: vault login -method=github [CONFIG K=V...]
-
-      The GitHub auth method allows users to authenticate using a GitHub
-      personal access token. Users can generate a personal access token from the
-      settings page on their GitHub account.
-
-      Authenticate using a GitHub token:
-
-          $ vault login -method=github token=abcd1234
-
-    Configuration:
-
-      mount=<string>
-          Path where the GitHub credential method is mounted. This is usually
-          provided via the -path flag in the "vault login" command, but it can be
-          specified here as well. If specified here, it takes precedence over the
-          value for -path. The default value is "github".
-
-      token=<string>
-          GitHub personal access token to use for authentication.
-
-Similarly, you can ask for help information about any CLI auth method, _even if it is not enabled_:
-
-Request help information for the AWS auth method.
-
-:ship:
+:ship: Request help information for the AWS auth method.
 ```bash
 vault auth help aws
 ```
 
-Request help information for the userpass auth method.
-
-:ship:
+:ship: Request help information for the userpass auth method.
 ```bash
 vault auth help userpass
 ```
-
-Request help information for tokens.
-
-:ship:
+:ship: Request help information for tokens.
 ```bash
 vault auth help token
 ```
 
-As per the help output, authenticate to GitHub using the `vault login` command. Enter your 
+:ship: Create a GitHub personal access token
+https://help.github.com/articles/creating-an-access-token-for-command-line-use/
 
-[GitHub personal access token](https://help.github.com/articles/creating-an-access-token-for-command-line-use/)
-
- and Vault will authenticate you.
-
-:ship:
+:ship: Login with GitHub Auth
 ```bash
 vault login -method=github
 ```
 
-    GitHub Personal Access Token (will be hidden):
-    Success! You are now authenticated. The token information displayed below
-    is already stored in the token helper. You do NOT need to run "vault login"
-    again. Future Vault requests will automatically use this token.
-
-    Key                    Value
-    ---                    -----
-    token                  s.DNtKCjVQ1TxAzgMqtDuwjjC2
-    token_accessor         e7zLJuPg2tLpav66ZSu5AyDC
-    token_duration         768h
-    token_renewable        true
-    token_policies         [default my-policy]
-    token_meta_org         hashicorp
-    token_meta_username    my-user
-
-Success! As the output indicates, Vault has already saved the resulting token in its token helper, so you do not need to run `vault login` again. However, this new user we just created does not have many permissions in Vault. To continue, re-authenticate with the root token.
-
-:ship:
+:ship: This new user we just created does not have many permissions in Vault.
+To continue, re-authenticate with the root token.
 ```bash
 vault login $VAULT_DEV_ROOT_TOKEN_ID
 ```
 
-You can revoke any logins from an auth method using `vault token revoke` with the `-mode` argument. For example:
-
-:ship:
+:ship: You can revoke any logins from an auth method using `vault token revoke` with the `-mode` argument. For example:
 ```bash
 vault token revoke -mode path auth/github
 ```
 
-Alternatively, if you want to completely disable the GitHub auth method, execute the following command.
-
-:ship:
+:ship: Alternatively, if you want to completely disable the GitHub auth method, execute the following command.
 ```bash
 vault auth disable github
 ```
-
-    Success! Disabled the auth method (if it existed) at: github/
-
-This will also revoke any logins for that auth method.
-
-### Next
-
-In this page you learned about how Vault authenticates users. You learned about the built-in token system as well as enabling other auth methods. At this point you know how Vault assigns an _identity_ to a user.
-
-The auth methods Vault provides let you choose the most appropriate authentication mechanism for your organization. Next, you will learn about policies to control client authorization.> Policies in Vault control what a user can access.
 
 ## Policies | Vault - HashiCorp Learn
 
@@ -723,8 +576,6 @@ Policies are authored in
 [HCL](https://github.com/hashicorp/hcl)
 
 , but are JSON compatible. Here is an example policy:
-
-
 
     path "secret/data/*" {
       capabilities = ["create", "update"]
@@ -1427,8 +1278,6 @@ The returned client token (`s.p5NB4dTlsPiUU94RA5IfbzXv`) can be used to authenti
 
 [Policies](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/policies) guide, the `default` policy is attached to all tokens by default. )
 
-
-
 The newly acquired token can be exported as the `VAULT_TOKEN` environment variable value and used to authenticate subsequent Vault requests.
 
 :ship:
@@ -1491,8 +1340,6 @@ Enter the initial root token to sign in.
 
 [Sign in](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/img/vault-autounseal-3.png)
 
-
-
 ### Non-Dev servers
 
 The Vault UI is not activated by default. To activate the UI, set the `ui` configuration option in the Vault server configuration.
@@ -1537,85 +1384,51 @@ Vault UI has a built-in guide to navigate you through the common steps to operat
 
 ## Next Steps | Vault - HashiCorp Learn
 
-
-
 [](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault)
 
-
-
-
-
 [Learn Vault](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault)
-
-
 
 /Getting Started
 
 *   
 
 [Getting Started](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=getting-started#getting-started)
-
-
 *   
 
 [Kubernetes](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=getting-started-k8s#getting-started-k8s)
-
-
 *   
 
 [Product Certification Exam Prep](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=certification#certification)
-
-
 *   
 
 [Vault 1.4 Release Highlights](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=new-release#new-release)
-
-
 *   
 
 [Day 1: Deploying Your First Vault Cluster](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=day-one#day-one)
-
-
 *   
 
 [Secrets Management](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=secrets-management#secrets-management)
-
-
 *   
 
 [Advanced Data Protection](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=ADP#ADP)
-
-
 *   
 
 [Data Encryption](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=encryption-as-a-service#encryption-as-a-service)
-
-
 *   
 
 [Access Management](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=identity-access-management#identity-access-management)
-
-
 *   
 
 [Monitoring & Troubleshooting](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=monitoring#monitoring)
-
-
 *   
 
 [Security](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=security#security)
-
-
 *   
 
 [Operations](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=operations#operations)
-
-
 *   
 
 [Developer](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=developer#developer)
-
-
 
 /Next Steps
 
@@ -1625,16 +1438,12 @@ Vault UI has a built-in guide to navigate you through the common steps to operat
 
     2 minThe first step to using Vault is to get it installed.
 
-
-
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/install)
 *   [
 
     ###### Starting the Server
 
     5 minAfter installing Vault, the next step is to start the server.
-
-
 
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/dev-server)
 *   [
@@ -1643,16 +1452,12 @@ Vault UI has a built-in guide to navigate you through the common steps to operat
 
     5 minWith the Vault server running, let's read and write our first secret.
 
-
-
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/first-secret)
 *   [
 
     ###### Secrets Engines
 
     5 minSecrets engines create, read, update, and delete secrets.
-
-
 
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/secrets-engines)
 *   [
@@ -1661,16 +1466,12 @@ Vault UI has a built-in guide to navigate you through the common steps to operat
 
     10 minOn this page we introduce dynamic secrets by showing you how to create AWS access keys with Vault.
 
-
-
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/dynamic-secrets)
 *   [
 
     ###### Built-in Help
 
     5 minVault has a built-in help system to learn about the available paths in Vault and how to use them.
-
-
 
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/help)
 *   [
@@ -1679,16 +1480,12 @@ Vault UI has a built-in guide to navigate you through the common steps to operat
 
     5 minUsers can authenticate to Vault using multiple methods.
 
-
-
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/authentication)
 *   [
 
     ###### Policies
 
     10 minPolicies in Vault control what a user can access.
-
-
 
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/policies)
 *   [
@@ -1697,16 +1494,12 @@ Vault UI has a built-in guide to navigate you through the common steps to operat
 
     5 minLearn how to deploy Vault, including configuring, starting, initializing, and unsealing it.
 
-
-
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/deploy)
 *   [
 
     ###### Using the HTTP APIs with Authentication
 
     5 minHTTP APIs can control authentication and access to secrets.
-
-
 
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/apis)
 *   [
@@ -1715,16 +1508,12 @@ Vault UI has a built-in guide to navigate you through the common steps to operat
 
     5 minVault comes with support for a user-friendly and functional web UI out of the box. In this guide we will explore the Vault UI.
 
-
-
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/ui)
 *   [
 
     ###### Next Steps
 
     2 minResources and further tracks now that you're confident using Vault.
-
-
 
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/next-steps)
 
@@ -1742,16 +1531,12 @@ Getting Started
 
     2 minThe first step to using Vault is to get it installed.
 
-
-
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/install)
 *   [
 
     ###### Starting the Server
 
     5 minAfter installing Vault, the next step is to start the server.
-
-
 
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/dev-server)
 *   [
@@ -1760,16 +1545,12 @@ Getting Started
 
     5 minWith the Vault server running, let's read and write our first secret.
 
-
-
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/first-secret)
 *   [
 
     ###### Secrets Engines
 
     5 minSecrets engines create, read, update, and delete secrets.
-
-
 
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/secrets-engines)
 *   [
@@ -1778,16 +1559,12 @@ Getting Started
 
     10 minOn this page we introduce dynamic secrets by showing you how to create AWS access keys with Vault.
 
-
-
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/dynamic-secrets)
 *   [
 
     ###### Built-in Help
 
     5 minVault has a built-in help system to learn about the available paths in Vault and how to use them.
-
-
 
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/help)
 *   [
@@ -1796,16 +1573,12 @@ Getting Started
 
     5 minUsers can authenticate to Vault using multiple methods.
 
-
-
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/authentication)
 *   [
 
     ###### Policies
 
     10 minPolicies in Vault control what a user can access.
-
-
 
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/policies)
 *   [
@@ -1814,16 +1587,12 @@ Getting Started
 
     5 minLearn how to deploy Vault, including configuring, starting, initializing, and unsealing it.
 
-
-
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/deploy)
 *   [
 
     ###### Using the HTTP APIs with Authentication
 
     5 minHTTP APIs can control authentication and access to secrets.
-
-
 
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/apis)
 *   [
@@ -1832,16 +1601,12 @@ Getting Started
 
     5 minVault comes with support for a user-friendly and functional web UI out of the box. In this guide we will explore the Vault UI.
 
-
-
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/ui)
 *   [
 
     ###### Next Steps
 
     2 minResources and further tracks now that you're confident using Vault.
-
-
 
     ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/next-steps)
 
@@ -1877,15 +1642,11 @@ Previous
 
 Web UI
 
-
-
 ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/ui)[
 
 Keep Learning
 
 Explore Operations & Development Tracks
-
-
 
 ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault#operations-and-development)
 
