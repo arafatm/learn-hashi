@@ -1,6 +1,8 @@
 # Learn Vault
 
-https://learn.hashicorp.com/vault#getting-started
+Source https://learn.hashicorp.com/vault#getting-started
+
+Docs https://www.vaultproject.io/docs
 
 ## cheatsheet
 
@@ -1059,342 +1061,39 @@ unset VAULT_TOKEN
 
 HTTP APIs https://www.vaultproject.io/api/index.html
 
-## Web UI | Vault - HashiCorp Learn
-
-Vault features a user interface (web interface) for interacting with Vault. Easily create, read, update, and delete secrets, authenticate, unseal, and more with the Vault UI.
+## Web UI | https://learn.hashicorp.com/vault/getting-started/ui
 
 ### Dev servers
 
-When you start the Vault server in dev mode, Vault UI is automatically enabled and ready to use.
+When you start the Vault server in dev mode, Vault UI is automatically enabled
+and ready to use.
 
-:ship:
+:ship: Start dev server
 ```bash
 vault server -dev
 ```
-    ...
 
-Open a web browser and enter `http://127.0.0.1:8200/ui` to launch the UI.
-
-Enter the initial root token to sign in.
-
-!
-
-[Sign in](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/img/vault-autounseal-3.png)
+:ship: Open a web browser and enter `http://127.0.0.1:8200/ui` to launch the UI.
 
 ### Non-Dev servers
 
-The Vault UI is not activated by default. To activate the UI, set the `ui` configuration option in the Vault server configuration.
+:warning: The Vault UI is not activated by default. 
 
-    ui = true
+:ship: To activate the UI, set the `ui` configuration option in the Vault
+server configuration.
+```hcl
+ui = true
 
-    listener "tcp" {
-      
-    }
+listener "tcp" {
+  address = "10.0.1.35:8200" 
+}
 
-    storage "consul" {
-      
-    }
+storage "consul" {
+  
+}
+```
 
-The UI runs on the same port as the Vault listener. As such, you must configure at least one `listener` stanza in order to access the UI.
+:warning: The UI runs on the same port as the Vault listener. As such, you must
+configure at least one `listener` stanza in order to access the UI.
 
-**Example:**
-
-    ui = true
-
-    listener "tcp" {
-      address = "10.0.1.35:8200"
-
-      
-      
-      
-    }
-
-In this case, the UI is accessible the following URL from any machine on the subnet (provided no network firewalls are in place): `https://10.0.1.35:8200/ui`
-
-It is also accessible at any DNS entry that resolves to that IP address, such as the Consul service address (if using Consul): `https://vault.service.consul:8200/ui`
-
-### Web UI Wizard
-
-Vault UI has a built-in guide to navigate you through the common steps to operate various Vault features.
-
-!
-
-[Sign in](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/img/vault-ui-wizard.png)
-
-> Resources and further tracks now that you're confident using Vault.
-
-## Next Steps | Vault - HashiCorp Learn
-
-[](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault)
-
-[Learn Vault](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault)
-
-/Getting Started
-
-*   
-
-[Getting Started](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=getting-started#getting-started)
-*   
-
-[Kubernetes](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=getting-started-k8s#getting-started-k8s)
-*   
-
-[Product Certification Exam Prep](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=certification#certification)
-*   
-
-[Vault 1.4 Release Highlights](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=new-release#new-release)
-*   
-
-[Day 1: Deploying Your First Vault Cluster](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=day-one#day-one)
-*   
-
-[Secrets Management](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=secrets-management#secrets-management)
-*   
-
-[Advanced Data Protection](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=ADP#ADP)
-*   
-
-[Data Encryption](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=encryption-as-a-service#encryption-as-a-service)
-*   
-
-[Access Management](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=identity-access-management#identity-access-management)
-*   
-
-[Monitoring & Troubleshooting](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=monitoring#monitoring)
-*   
-
-[Security](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=security#security)
-*   
-
-[Operations](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=operations#operations)
-*   
-
-[Developer](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault?track=developer#developer)
-
-/Next Steps
-
-*   [
-
-    ###### Install Vault
-
-    2 minThe first step to using Vault is to get it installed.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/install)
-*   [
-
-    ###### Starting the Server
-
-    5 minAfter installing Vault, the next step is to start the server.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/dev-server)
-*   [
-
-    ###### Your First Secret
-
-    5 minWith the Vault server running, let's read and write our first secret.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/first-secret)
-*   [
-
-    ###### Secrets Engines
-
-    5 minSecrets engines create, read, update, and delete secrets.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/secrets-engines)
-*   [
-
-    ###### Dynamic Secrets
-
-    10 minOn this page we introduce dynamic secrets by showing you how to create AWS access keys with Vault.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/dynamic-secrets)
-*   [
-
-    ###### Built-in Help
-
-    5 minVault has a built-in help system to learn about the available paths in Vault and how to use them.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/help)
-*   [
-
-    ###### Authentication
-
-    5 minUsers can authenticate to Vault using multiple methods.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/authentication)
-*   [
-
-    ###### Policies
-
-    10 minPolicies in Vault control what a user can access.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/policies)
-*   [
-
-    ###### Deploy Vault
-
-    5 minLearn how to deploy Vault, including configuring, starting, initializing, and unsealing it.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/deploy)
-*   [
-
-    ###### Using the HTTP APIs with Authentication
-
-    5 minHTTP APIs can control authentication and access to secrets.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/apis)
-*   [
-
-    ###### Web UI
-
-    5 minVault comes with support for a user-friendly and functional web UI out of the box. In this guide we will explore the Vault UI.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/ui)
-*   [
-
-    ###### Next Steps
-
-    2 minResources and further tracks now that you're confident using Vault.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/next-steps)
-
-*   [
-
-    •
-
-    Overview](#overview)
-
-Getting Started
-
-*   [
-
-    ###### Install Vault
-
-    2 minThe first step to using Vault is to get it installed.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/install)
-*   [
-
-    ###### Starting the Server
-
-    5 minAfter installing Vault, the next step is to start the server.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/dev-server)
-*   [
-
-    ###### Your First Secret
-
-    5 minWith the Vault server running, let's read and write our first secret.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/first-secret)
-*   [
-
-    ###### Secrets Engines
-
-    5 minSecrets engines create, read, update, and delete secrets.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/secrets-engines)
-*   [
-
-    ###### Dynamic Secrets
-
-    10 minOn this page we introduce dynamic secrets by showing you how to create AWS access keys with Vault.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/dynamic-secrets)
-*   [
-
-    ###### Built-in Help
-
-    5 minVault has a built-in help system to learn about the available paths in Vault and how to use them.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/help)
-*   [
-
-    ###### Authentication
-
-    5 minUsers can authenticate to Vault using multiple methods.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/authentication)
-*   [
-
-    ###### Policies
-
-    10 minPolicies in Vault control what a user can access.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/policies)
-*   [
-
-    ###### Deploy Vault
-
-    5 minLearn how to deploy Vault, including configuring, starting, initializing, and unsealing it.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/deploy)
-*   [
-
-    ###### Using the HTTP APIs with Authentication
-
-    5 minHTTP APIs can control authentication and access to secrets.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/apis)
-*   [
-
-    ###### Web UI
-
-    5 minVault comes with support for a user-friendly and functional web UI out of the box. In this guide we will explore the Vault UI.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/ui)
-*   [
-
-    ###### Next Steps
-
-    2 minResources and further tracks now that you're confident using Vault.
-
-    ](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/next-steps)
-
-Getting Started
-
-Time to Complete
-
-2 minutes
-
-Level
-
-Getting Started
-
-Products Used
-
-Vault
-
-That concludes the getting started guide for Vault. Hopefully you're excited about the possibilities of Vault and ready to put this knowledge to use to improve your environment.
-
-We've covered the basics of all the core features of Vault in this guide. Due to the importance of securing secrets, we recommend reading the following as next steps.
-
-*   
-
-[Documentation](https://www.vaultproject.io/docs/index.html)
-
- - The documentation is an in-depth reference guide to all the features of Vault.
-
-Was this guide helpful?
-
-[
-
-Previous
-
-Web UI
-
-](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/ui)[
-
-Keep Learning
-
-Explore Operations & Development Tracks
-
-](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault#operations-and-development)
-
-On This Page
-
-*   [
-
-    •
-
-    Overview](#overview)
+https://10.0.1.35:8200/ui
