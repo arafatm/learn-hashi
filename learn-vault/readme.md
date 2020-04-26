@@ -855,26 +855,14 @@ lock down the Vault in an emergency without consulting other operators.
 When the Vault is sealed again, it clears all of its state (including the
 encryption key) from memory. The Vault is secure and locked down from access.
 
-## Using the HTTP APIs with Authentication | Vault
+## Using the HTTP APIs with Authentication | https://learn.hashicorp.com/vault/getting-started/apis
 
-All of Vault's capabilities are accessible via the HTTP API in addition to the CLI. In fact, most calls from the CLI actually invoke the HTTP API. In some cases, Vault features are not available via the CLI and can only be accessed via the HTTP API.
+:flashlight: Vault CLI is subset of API
 
-Once you have started the Vault server, you can use Client URL (cURL) or any other http client to make API calls. For example, if you started the Vault server in 
-
-[dev mode](https://www.vaultproject.io/docs/concepts/dev-server.html)
-
-, you could validate the initialization status like this:
-
-:ship:
+:ship: If in `dev mode`, validate the initialization status 
 ```bash
 curl http://127.0.0.1:8200/v1/sys/init
 ```
-
-This will return a JSON response:
-
-    {
-      "initialized": true
-    }
 
 ### Accessing Secrets via the REST APIs
 
@@ -884,38 +872,31 @@ Machines that need access to information stored in Vault will most likely access
 
  for authentication, the application would first authenticate to Vault which would return a Vault API token. The application would use that token for future communication with Vault.
 
-For the purpose of this guide, we will use the following configuration which disables TLS and uses a file-based backend. TLS is disabled here only for example purposes; it should never be disabled in production.
+:ship: For this guide, disable TLS and save to `config.hcl`
+```bash
+backend "file" {
+  path = "vault"
+}
 
-    backend "file" {
-      path = "vault"
-    }
+listener "tcp" {
+  tls_disable = 1
+}
+```
 
-    listener "tcp" {
-      tls_disable = 1
-    }
+:warning: TLS is disabled here only for example purposes; it should never be disabled in production.
 
-Save this file on disk as `config.hcl`. Stop the Vault server instance that you previously started and then start a new instance using the newly created configuration.
-
-:ship:
+:ship: Start vault with new config
 ```bash
 vault server -config=config.hcl
 ```
 
-At this point, we can use Vault's API for all our interactions. For example, we can initialize Vault like this.
-
-:exclamation: This example uses 
-
-[jq](https://stedolan.github.io/jq/download/)
-
- to process the JSON output for readability.
-
-:ship:
+:ship: Start vault
 ```bash
 curl \
+       --request POST \
+       --data '{"secret_shares": 1, "secret_threshold": 1}' \
+       http://127.0.0.1:8200/v1/sys/init | jq
 ```
-        --request POST \
-        --data '{"secret_shares": 1, "secret_threshold": 1}' \
-        http://127.0.0.1:8200/v1/sys/init | jq
 
 The response should be JSON and looks something like this:
 
@@ -929,165 +910,98 @@ The response should be JSON and looks something like this:
       "root_token": "s.Ga5jyNq6kNfRMVQk2LY1j9iu"
     }
 
-This response contains our initial root token. It also includes the unseal key. You can use the unseal key to unseal the Vault and use the root token perform other requests in Vault that require authentication.
-
-To make this guide easy to copy-and-paste, we will be using the environment variable `$VAULT_TOKEN` to store the root token. You can export this Vault token in your current shell like this:
-
-:ship:
+:ship: Store root token. 
 ```bash
 export VAULT_TOKEN="s.Ga5jyNq6kNfRMVQk2LY1j9iu"
 ```
 
-Using the unseal key (not the root token) from above, you can unseal the Vault via the HTTP API:
+:warning: Do not store the root token in production
 
-:ship:
+:ship: Using the unseal key (not the root token) from above, you can unseal the
+Vault via the HTTP API:
 ```bash
 curl \
+       --request POST \
+       --data '{"key": "/ye2PeRrd/qruh9Ppu9EyUjk1vLqIflg1qqw6w9OE5E="}' \
+       http://127.0.0.1:8200/v1/sys/unseal | jq
 ```
-        --request POST \
-        --data '{"key": "/ye2PeRrd/qruh9Ppu9EyUjk1vLqIflg1qqw6w9OE5E="}' \
-        http://127.0.0.1:8200/v1/sys/unseal | jq
 
-:exclamation: that you should replace `/ye2PeRrd/qru...` with the generated key from your output. This will return a JSON response:
-
-    {
-      "type": "shamir",
-      "initialized": true,
-      "sealed": false,
-      "t": 1,
-      "n": 1,
-      "progress": 0,
-      "nonce": "",
-      "version": "1.3.2",
-      "migration": false,
-      "cluster_name": "vault-cluster-a90e2cd2",
-      "cluster_id": "0bc4b0fa-f876-8069-8d45-e0daae74e90e",
-      "recovery_seal": false,
-      "storage_type": "file"
-    }
-
-Now any of the available auth methods can be enabled and configured. For the purposes of this guide lets enable 
-
-[AppRole](https://www.vaultproject.io/docs/auth/approle.html)
-
- authentication.
-
-The 
-
-[Authentication](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/authentication#auth-methods)
-
- guide showed how to enable the GitHub auth method using Vault CLI.
-
-:ship:
+:ship: Enable AppRole auth for now
+https://www.vaultproject.io/docs/auth/approle.html
 ```bash
 vault auth enable <auth_method_type>
 ```
 
-To see the cURL equivalent of the CLI command to enable AppRole auth method, use the `-output-curl-string` flag.
+:ship: To see the cURL equivalent of the CLI command to enable AppRole auth
+method, use the `-output-curl-string` flag.
 
-:ship:
 ```bash
 vault auth enable -output-curl-string approle
 ```
 
-Enable the AppRole auth method by invoking the Vault API.
-
-:ship:
+:ship: Enable the AppRole auth method by invoking the Vault API.
 ```bash
 curl \
+       --header "X-Vault-Token: $VAULT_TOKEN" \
+       --request POST \
+       --data '{"type": "approle"}' \
+       http://127.0.0.1:8200/v1/sys/auth/approle
 ```
-        --header "X-Vault-Token: $VAULT_TOKEN" \
-        --request POST \
-        --data '{"type": "approle"}' \
-        http://127.0.0.1:8200/v1/sys/auth/approle
 
-Notice that the request to enable the AppRole endpoint needed an authentication token. In this case we are passing the root token generated when we started the Vault server. We could also generate tokens using any other authentication mechanisms, but we will use the root token for simplicity.
-
-Now create an AppRole with desired set of 
-
-[ACL policies](https://www.vaultproject.io/docs/concepts/policies.html)
-
-.
-
-The 
-
-[Policies](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/policies)
-
- guide used CLI to create `my-policy`. In this guide, use the `/sys/policies/acl` endpoint to create the same policy via Vault API.
-
-:ship:
+:ship: Create an ACL policies https://www.vaultproject.io/docs/concepts/policies.html
 ```bash
 curl \
+       --header "X-Vault-Token: $VAULT_TOKEN" \
+       --request PUT \
+       --data '{"policy":"# Dev servers have version 2 of KV secrets engine mounted by default, so will\n# need these paths to grant permissions:\npath \"secret/data/*\" {\n  capabilities = [\"create\", \"update\"]\n}\n\npath \"secret/data/foo\" {\n  capabilities = [\"read\"]\n}\n"}' \
+       http://127.0.0.1:8200/v1/sys/policies/acl/my-policy
 ```
-        --header "X-Vault-Token: $VAULT_TOKEN" \
-        --request PUT \
-        --data '{"policy":"# Dev servers have version 2 of KV secrets engine mounted by default, so will\n# need these paths to grant permissions:\npath \"secret/data/*\" {\n  capabilities = [\"create\", \"update\"]\n}\n\npath \"secret/data/foo\" {\n  capabilities = [\"read\"]\n}\n"}' \
-        http://127.0.0.1:8200/v1/sys/policies/acl/my-policy
 
-Since `my-policy` expects `secret/data` path to exist, enable KV v2 secrets engine at `secret/` using API.
-
-:ship:
+:ship: Since `my-policy` expects `secret/data` path to exist, enable KV v2 secrets engine at `secret/` using API.  
 ```bash
 curl \
+       --header "X-Vault-Token: $VAULT_TOKEN" \
+       --request POST \
+       --data '{ "type":"kv-v2" }' \
+       http://127.0.0.1:8200/v1/sys/mounts/secret
 ```
-        --header "X-Vault-Token: $VAULT_TOKEN" \
-        --request POST \
-        --data '{ "type":"kv-v2" }' \
-        http://127.0.0.1:8200/v1/sys/mounts/secret
 
-The following command specifies that the tokens issued under the AppRole `my-role` should be associated with `my-policy`.
-
-:ship:
+:ship: The following command specifies that the tokens issued under the AppRole `my-role` should be associated with `my-policy`.  
 ```bash
 curl \
+       --header "X-Vault-Token: $VAULT_TOKEN" \
+       --request POST \
+       --data '{"policies": ["my-policy"]}' \
+       http://127.0.0.1:8200/v1/auth/approle/role/my-role
 ```
-        --header "X-Vault-Token: $VAULT_TOKEN" \
-        --request POST \
-        --data '{"policies": ["my-policy"]}' \
-        http://127.0.0.1:8200/v1/auth/approle/role/my-role
 
-The AppRole auth method expects a RoleID and a SecretID as its input. The RoleID is similar to a username and the SecretID can be thought as the RoleID's password.
+:warning: The AppRole auth method expects a RoleID and a SecretID as its input.
+The RoleID is similar to a username and the SecretID can be thought as the
+RoleID's password.
 
-The following command fetches the RoleID of the role named `my-role`.
-
-:ship:
+:ship: fetch the RoleID of the role named `my-role` and scan output for `role_id`.
 ```bash
 curl \
-```
         --header "X-Vault-Token: $VAULT_TOKEN" \
          http://127.0.0.1:8200/v1/auth/approle/role/my-role/role-id | jq -r ".data"
+```
 
-The response will include the `role_id`:
-
-    {
-      "role_id": "3c301960-8a02-d776-f025-c3443d513a18"
-    }
-
-This command creates a new SecretID under the `my-role`.
-
-:ship:
+:ship: create a new SecretID under the `my-role` and scan for `secret_id`.  
 ```bash
 curl \
-```
         --header "X-Vault-Token: $VAULT_TOKEN" \
         --request POST \
         http://127.0.0.1:8200/v1/auth/approle/role/my-role/secret-id | jq -r ".data"
-
-The response will include the `secret_id`:
-
-    {
-      "secret_id": "22d1e0d6-a70b-f91f-f918-a0ee8902666b",
-      "secret_id_accessor": "726ab786-70d0-8cc4-e775-c0a75070e5e5"
-    }
+```
 
 These two credentials can be supplied to the login endpoint to fetch a new Vault token.
 
 :ship:
 ```bash
 curl --request POST \
+       --data '{"role_id": "ROLE_ID", "secret_id": "SECRET_ID"}' \
+       http://127.0.0.1:8200/v1/auth/approle/login | jq -r ".auth"
 ```
-           --data '{"role_id": "c3ec4eab-5477-c669-fca8-6a71fdf38c23", "secret_id": "fc2710e5-9536-3f4f-666d-fd5d8379b2b9"}' \
-           http://127.0.0.1:8200/v1/auth/approle/login | jq -r ".auth"
 
 The response will be JSON, under the key `auth`:
 
@@ -1112,23 +1026,19 @@ The response will be JSON, under the key `auth`:
       "orphan": true
     }
 
-The returned client token (`s.p5NB4dTlsPiUU94RA5IfbzXv`) can be used to authenticate with Vault. This token will be authorized with specific capabilities on all the resources encompassed by the `default` and `my-policy` policies. (As it was mentioned in the 
+:exclamation: The returned `client_token` can be used to authenticate with
+Vault. 
 
-[Policies](chrome-extension://cjedbglnccaioiolemnfhjncicchinao/vault/getting-started/policies) guide, the `default` policy is attached to all tokens by default. )
-
-The newly acquired token can be exported as the `VAULT_TOKEN` environment variable value and used to authenticate subsequent Vault requests.
-
-:ship:
+:ship: The newly acquired token can be exported as the `VAULT_TOKEN`
+environment variable value and used to authenticate subsequent Vault requests.
 ```bash
-export VAULT_TOKEN="s.p5NB4dTlsPiUU94RA5IfbzXv"
+export VAULT_TOKEN="CLIENT_TOKEN"
 ```
 
-Create a version 1 of secret named `creds` with a key `password` and its value set to `my-long-password`.
-
-:ship:
+:ship: Create a version 1 of secret named `creds` with a key `password` and its
+value set to `my-long-password`.
 ```bash
 curl \
-```
         --header "X-Vault-Token: $VAULT_TOKEN" \
         --request POST \
         --data '{ "data": {"password": "my-long-password"} }' \
@@ -1140,21 +1050,14 @@ curl \
       "destroyed": false,
       "version": 1
     }
+```
 
-You can stop the server and unset the `VAULT_TOKEN` environment variable.
-
-:ship:
+:ship: You can stop the server and unset `VAULT_TOKEN` variable.
 ```bash
 unset VAULT_TOKEN
 ```
 
-You can see the documentation on the 
-
-[HTTP APIs](https://www.vaultproject.io/api/index.html)
-
- for more details on other available endpoints.
-
-Congratulations! You now know all the basics needed to get started with Vault.> Vault comes with support for a user-friendly and functional web UI out of the box. In this guide we will explore the Vault UI.
+HTTP APIs https://www.vaultproject.io/api/index.html
 
 ## Web UI | Vault - HashiCorp Learn
 
